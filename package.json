@@ -1,0 +1,28 @@
+{
+  "name": "tournament-set-maker",
+  "version": "1.0.0",
+  "description": "A program to create mapsets for osu!droid tournaments",
+  "main": "main.js",
+  "dependencies": {
+    "crypto-js": "^4.0.0",
+    "unzipper": "^0.10.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rian8337/tournament-set-maker.git"
+  },
+  "keywords": [
+    "osu!",
+    "osu!droid"
+  ],
+  "author": "Rian8337",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Rian8337/tournament-set-maker/issues"
+  },
+  "homepage": "https://github.com/Rian8337/tournament-set-maker#readme"
+}
