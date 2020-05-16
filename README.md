@@ -13,3 +13,7 @@ A NodeJS script that can create mapsets for osu!droid tournaments.
 
 #### Warning!
 The script can only process one beatmap at a time. Once you're done processing a beatmap, remove it from the directory and place another beatmap file.
+
+### TO-DO
+- Add support for multiple maps
+- Add JSON output to insert directly to database (see [Alice](https://github.com/Rian8337/Alice)).
