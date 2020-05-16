@@ -100,12 +100,6 @@ fs.readdir(__dirname + "/maps", (err, files) => {
                         lines[i] = `${p[0]}:(${id}) ${artist} - ${title} [${version}]`;
                         continue
                     }
-
-                    if (line.startsWith("BeatmapID")) {
-                        beatmap_id = parseInt(p[1]);
-                        if (isNaN(beatmap_id) || beatmap_id === -1) console.warn("Beatmap ID is invalid!");
-                        continue
-                    }
     
                     if (line.startsWith("0,0")) {
                         let s = line.split(",");
