@@ -1,5 +1,5 @@
 # osu!droid Tournament Set Maker
-A NodeJS script to create mapsets for osu!droid tournaments.
+A NodeJS script that can create mapsets for osu!droid tournaments.
 
 ### Requirements
 - NodeJS (any version would do, however above v10 is recommended)
