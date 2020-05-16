@@ -3,7 +3,7 @@ A NodeJS script that can create mapsets for osu!droid tournaments.
 
 ### Requirements
 - NodeJS (any version would do, however v12 or above (LTS) is recommended)
-- A text editor that can edit JSON files
+- A text editor that can edit JSON files. For convenience, it is recommended to use an IDE/code editor such as [Visual Studio Code](https://code.visualstudio.com).
 
 ### Guide
 1. Download the script and install dependencies by running `npm install` in your command line.
