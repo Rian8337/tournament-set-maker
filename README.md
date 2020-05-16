@@ -24,7 +24,7 @@ This field will be used as the beatmap's general artist (for example, `Various A
 This field will be used as the beatmap's general title (for example, `osu!droid 8th Discord Tournament`).
 
 #### format
-This field configures a beatmap's ID to use for the mapset (NM1/NM2/etc), what the beatmap's beatmapset ID (this will be used to detect maps from the maps folder), and the difficulty name of the beatmap that you want to use in the mapset.
+This field configures the beatmap ID to use for the mapset (NM1/NM2/etc), what the beatmap's beatmapset ID (this will be used to detect maps from the maps folder), and the difficulty name of the beatmap that you want to use in the mapset.
 This field is crucial for the script to work, so make sure to modify accordingly.
 
 An example of correct JSON file:
