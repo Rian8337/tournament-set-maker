@@ -1,17 +1,17 @@
 {
-    "poolid": "t0t",
-    "artist": "V.A.",
-    "title": "osu!droid 9th Discord Tournament Qualify Round",
+    "poolid": "",
+    "artist": "",
+    "title": "",
     "format": [
         {
-            "id": "NM1",
-            "beatmapset_id": 1114339,
-            "difficulty_name": "Expert"
+            "id": "",
+            "beatmapset_id": 0,
+            "difficulty_name": ""
         },
         {
-            "id": "NM2",
-            "beatmapset_id": 1125778,
-            "difficulty_name": "Evolutionism"
+            "id": "",
+            "beatmapset_id": 0,
+            "difficulty_name": ""
         }
     ]
 }
