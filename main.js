@@ -8,7 +8,7 @@ fs.readdir(__dirname + "/maps", (err, files) => {
     if (err) throw err;
 
     files = files.filter(file => file.endsWith(".osz"));
-    if (files.length === 0) return console.log("No maps found!");
+    if (files.length === 0) return console.warn("No maps found!");
 
     let map_entries = {
         poolid: config.poolid,
@@ -22,8 +22,11 @@ fs.readdir(__dirname + "/maps", (err, files) => {
 
     files.forEach(file => {
         const beatmapset_id = parseInt(file.split(" ")[0]);
+        if (isNaN(beatmapset_id)) return console.warn("Invalid beatmap set ID! Please make sure your .osz file is named correctly!");
+
         const format = formats.find(f => f.beatmapset_id === beatmapset_id);
-        if (!format) return console.log("Unable to find .osz file for following file:", file);
+        if (!format) return console.warn("Unable to find matching beatmap set ID for the following file:", file);
+
         const difficulty = format.difficulty_name;
         const id = format.id;
 
