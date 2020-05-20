@@ -27,7 +27,8 @@ fs.readdir('./maps', (err, files) => {
         const format = formats.find(f => f.beatmapset_id === beatmapset_id);
         if (!format) return console.warn("Unable to find matching beatmap set ID for the following file:", file);
 
-        const difficulty = format.difficulty_name;
+        // provided that Windows is used
+        const difficulty = format.difficulty_name.replace(/[/\\?%*:|"<>]/g, " ");
         const id = format.id;
 
         const zip = new AdmZip(`./maps/${file}`);
