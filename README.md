@@ -48,3 +48,6 @@ An example of correct JSON file format:
     ]
 }
 ```
+
+### TO-DO
+- Detect beatmaps using beatmap ID from links instead of manually entering beatmapset ID and difficulty name
