@@ -14,7 +14,7 @@ fs.readdir('./maps', (err, files) => {
         map: []
     };
 
-    let count = 1;
+    let count = 0;
     const map_artist = config.artist;
     const map_title = config.title;
     const formats = config.format;
