@@ -28,7 +28,7 @@ class MapInfo {
         if (!this.map) {
             return 0;
         }
-        let stats = new MapStats(this).calculate({mode: "osu", mods: mod});
+        let stats = new MapStats(this.map).calculate({mode: "osu", mods: mod});
         const modbits = mods.modbits_from_string(mod);
         let diff_multiplier = 1 + stats.od / 10 + stats.hp / 10 + (stats.cs - 3) / 4;
 
