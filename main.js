@@ -1,4 +1,3 @@
-const {Parse} = require('unzipper');
 const AdmZip = require('adm-zip');
 const config = require('./config.json');
 const osudroid = require('osu-droid');
@@ -29,7 +28,7 @@ fs.readdir('./maps', (err, files) => {
 
         // provided that Windows is used
         const difficulty = format.difficulty_name.replace(/[/\\?%*:|"<>]/g, " ");
-        const id = format.id;
+        const id = format.id.toUpperCase();
 
         const zip = new AdmZip(`./maps/${file}`);
         const entries = zip.getEntries();
@@ -93,8 +92,7 @@ fs.readdir('./maps', (err, files) => {
 
                 if (line.startsWith("0,0")) {
                     let s = line.split(",");
-                    const file_format_length = s[2].lastIndexOf(".");
-                    const file_format = s[2].substring(file_format_length);
+                    const file_format = s[2].substring(s[2].lastIndexOf("."));
                     s[2] = `${id}${file_format}`;
                     lines[i] = s.join(",");
                     break
