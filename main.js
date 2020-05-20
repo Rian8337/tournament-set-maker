@@ -14,7 +14,7 @@ fs.readdir('./maps', (err, files) => {
         map: []
     };
 
-    let count = 0;
+    let count = 1;
     const map_artist = config.artist;
     const map_title = config.title;
     const formats = config.format;
@@ -27,37 +27,21 @@ fs.readdir('./maps', (err, files) => {
         if (!format) return console.warn("Unable to find matching beatmap set ID for the following file:", file);
 
         // provided that Windows is used
-        const difficulty = format.difficulty_name.replace(/[/\\?%*:|"<>]/g, " ");
+        const difficulty = format.difficulty_name.replace(/[\[\]/\\?%*:|"<>]/g, "_");
         const id = format.id.toUpperCase();
 
         const zip = new AdmZip(`./maps/${file}`);
         const entries = zip.getEntries();
+        const osuEntries = entries.filter(entry => entry.entryName.endsWith(".osu"));
 
-        for (const entry of entries) {
+        for (const entry of osuEntries) {
+            const fileName = entry.entryName;
+            if (!fileName.endsWith(`[${difficulty}].osu`)) continue;
+
             let artist = '';
             let title = '';
             let creator = '';
             let version = '';
-
-            const fileName = entry.entryName;
-            if (fileName.endsWith(".mp3")) {
-                newZip.addFile(`${id}.mp3`, entry.getData());
-                continue
-            }
-
-            const lowName = fileName.toLowerCase();
-            const length = lowName.length;
-            if (
-                lowName.indexOf("png", length - 3) !== -1 ||
-                lowName.indexOf("jpg", length - 3) !== -1 ||
-                lowName.indexOf("jpeg", length - 4) !== -1
-            ) {
-                const file_format = fileName.substring(fileName.lastIndexOf("."));
-                newZip.addFile(`${id}${file_format}`, entry.getData());
-                continue
-            }
-
-            if (!fileName.endsWith(`[${difficulty}].osu`)) continue;
             let lines = entry.getData().toString("utf8").split("\n");
 
             for (let i = 0; i < lines.length; ++i) {
@@ -66,7 +50,18 @@ fs.readdir('./maps', (err, files) => {
                 line = line.trim();
                 if (line.length === 0 || line.startsWith("//")) continue;
 
-                const p = line.split(":");
+                const p = line.split(":").map(l => l.trim());
+
+                if (line.startsWith("AudioFilename")) {
+                    const audioFile = entries.find(entry => entry.entryName === p[1]);
+                    newZip.addFile(`${id}.mp3`, audioFile.getData());
+                    lines[i] = `${p[0]}: ${id}.mp3`;
+                    continue
+                }
+
+                // ignore non-osu!standard maps
+                if (line.startsWith("Mode") && parseInt(p[1]) !== 0) continue;
+
                 if (line.startsWith("Title")) {
                     if (!line.includes("Unicode")) title = p[1];
                     lines[i] = `${p[0]}:${map_title}`;
@@ -91,9 +86,11 @@ fs.readdir('./maps', (err, files) => {
                 }
 
                 if (line.startsWith("0,0")) {
-                    let s = line.split(",");
+                    let s = line.split(",").map(l => l.replace(/"/g, ""));
                     const file_format = s[2].substring(s[2].lastIndexOf("."));
-                    s[2] = `${id}${file_format}`;
+                    const backgroundFile = entries.find(entry => entry.entryName === s[2]);
+                    newZip.addFile(`${id}${file_format}`, backgroundFile.getData());
+                    s[2] = `"${id}${file_format}"`;
                     lines[i] = s.join(",");
                     break
                 }
@@ -130,7 +127,7 @@ fs.readdir('./maps', (err, files) => {
                     mode = 'tb'
             }
 
-            const map = new osudroid.Parser().parse(content.toString("utf8")).map;
+            const map = new osudroid.Parser().parse(entry.getData().toString("utf8")).map;
             const mapinfo = new osudroid.MapInfo(map);
             const max_score = mapinfo.max_score(mods);
 
@@ -143,18 +140,20 @@ fs.readdir('./maps', (err, files) => {
             map_entries.map.push(map_entry);
 
             newZip.addFile(file_name, Buffer.from(lines, 'utf8'));
-            ++count;
-            if (count !== files.length) return;
-
-            const set_name = `${map_artist} - ${map_title}.osz`;
-            newZip.writeZip(set_name, err => {
-                if (err) throw err;
-
-                fs.writeFile('databaseEntry.json', JSON.stringify(map_entries), err => {
-                    if (err) throw err;
-                    console.log("Done")
-                })
-            })
+            break
         }
+
+        ++count;
+        if (count !== file_list.length) return;
+
+        const set_name = `./output/${map_artist} - ${map_title}.osz`;
+        newZip.writeZip(set_name, err => {
+            if (err) throw err;
+
+            fs.writeFile('databaseEntry.json', JSON.stringify(map_entries), err => {
+                if (err) throw err;
+                console.log("Done!")
+            })
+        })
     })
 })
