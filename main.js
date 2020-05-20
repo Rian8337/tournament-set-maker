@@ -19,6 +19,7 @@ fs.readdir('./maps', (err, files) => {
     const map_title = config.title;
     const formats = config.format;
     const newZip = new AdmZip();
+    const map_list = [];
 
     file_list.forEach(file => {
         const beatmapset_id = parseInt(file.split(" ")[0]);
@@ -137,7 +138,7 @@ fs.readdir('./maps', (err, files) => {
                 max_score,
                 md5
             ];
-            map_entries.map.push(map_entry);
+            map_list.push(map_entry);
 
             newZip.addFile(file_name, Buffer.from(lines, 'utf8'));
             break
@@ -149,6 +150,23 @@ fs.readdir('./maps', (err, files) => {
         const set_name = `./output/${map_artist} - ${map_title}.osz`;
         newZip.writeZip(set_name, err => {
             if (err) throw err;
+
+            const new_list = [];
+            const modes = ['nm', 'hd', 'hr', 'dt', 'fm', 'tb'].map(m => m.toUpperCase());
+            for (const mode of modes) {
+                let index = 1;
+                const mode_list = map_list.filter(map => map[1].includes(`[(${mode}`));
+                if (mode !== 'TB') {
+                    while (mode_list.length > 0) {
+                        const mapIndex = mode_list.findIndex(map => map[1].includes(`[(${mode}${index})`));
+                        new_list.push(mode_list[mapIndex]);
+                        ++index;
+                        mode_list.splice(mapIndex, 1)
+                    }
+                }
+                else new_list.push(mode_list[0])
+            }
+            map_entries.map = new_list;
 
             fs.writeFile('databaseEntry.json', JSON.stringify(map_entries), err => {
                 if (err) throw err;
