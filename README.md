@@ -11,7 +11,7 @@ A NodeJS script that can create mapsets for osu!droid tournaments.
 3. Place `.osz` files into the maps folder. Note the name of the files. Each `.osz` files must contain its beatmapset ID in the beginning of its file name.
 4. Open config.json and modify the fields as you like. For explanation, see the category below.
 5. Run `npm run start` or `node main.js`.
-6. The mapset is ready for zipping inside the maps folder. A `databaseEntry.json` file will be created if you want to enter the mapset for [Alice](https://github.com/Rian8337/Alice). Please ask `@Rian8337#0001` in Discord if you want to do so.
+6. The mapset is ready to use and can be found inside the output folder. A `databaseEntry.json` file will be created if you want to enter the mapset for [Alice](https://github.com/Rian8337/Alice). Please ask `@Rian8337#0001` in Discord if you want to do so.
 
 ### config.json configuration
 #### poolid
