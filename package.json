@@ -1,12 +1,12 @@
 {
   "name": "tournament-set-maker",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A program to create mapsets for osu!droid tournaments",
   "main": "main.js",
   "dependencies": {
+    "adm-zip": "^0.4.14",
     "crypto-js": "^4.0.0",
-    "osu-droid": "file:modules/osu!droid",
-    "unzipper": "^0.10.11"
+    "osu-droid": "file:modules/osu!droid"
   },
   "devDependencies": {},
   "scripts": {
