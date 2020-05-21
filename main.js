@@ -148,7 +148,8 @@ fs.readdir('./maps', async (err, files) => {
             lines = lines.join("\n");
             
             const md5 = MD5(lines).toString();
-            const file_name = `${map_artist} - ${map_title} (${creator.replace(/[\[\]/\\?%*:|"<>]/g, "_")}) [(${pick}) ${map_object.artist.replace(/[\[\]/\\?%*:|"<>]/g, "_")} - ${map_object.title.replace(/[\[\]/\\?%*:|"<>]/g, "_")} [${map_object.version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}]].osu`;
+            const file_name = `${map_artist} - ${map_title} (${creator.replace(/[/\\?%*:|"<>]/g, "_")}) [(${pick}) ${map_object.artist.replace(/[/\\?%*:|"<>]/g, "_")} - ${map_object.title.replace(/[/\\?%*:|"<>]/g, "_")} [${map_object.version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}]].osu`;
+            const database_name = `${map_artist} - ${map_title} (${creator.replace(/[/\\?%*:|"<>]/g, "_")}) [(${pick}) ${map_object.artist.replace(/[/\\?%*:|"<>]/g, "_")} - ${map_object.title.replace(/[/\\?%*:|"<>]/g, "_")} [${map_object.version.replace(/[/\\?%*:|"<>]/g, "_")}]]`.replace(/['_]/g, " ");
 
             let mods = '';
             
@@ -169,7 +170,7 @@ fs.readdir('./maps', async (err, files) => {
 
             const map_entry = [
                 id,
-                file_name.substring(0, file_name.length - 4),
+                database_name,
                 max_score,
                 md5
             ];
@@ -190,7 +191,6 @@ fs.readdir('./maps', async (err, files) => {
             if (mode !== 'TB') {
                 while (mode_list.length > 0) {
                     const mapIndex = mode_list.findIndex(map => map[1].includes(`[(${mode}${id})`));
-                    mode_list[mapIndex][1].replace(/'_/g, " ");
                     new_list.push(mode_list[mapIndex]);
                     ++id;
                     mode_list.splice(mapIndex, 1)
