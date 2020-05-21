@@ -148,8 +148,7 @@ fs.readdir('./maps', async (err, files) => {
             lines = lines.join("\n");
             
             const md5 = MD5(lines).toString();
-            const file_name = `${map_artist} - ${map_title} (${creator.replace(/[/\\?%*:|"<>]/g, "_")}) [(${pick}) ${map_object.artist.replace(/[/\\?%*:|"<>]/g, "_")} - ${map_object.title.replace(/[/\\?%*:|"<>]/g, "_")} [${map_object.version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}]].osu`;
-            const database_name = `${map_artist} - ${map_title} (${creator.replace(/[/\\?%*:|"<>]/g, "_")}) [(${pick}) ${map_object.artist.replace(/[/\\?%*:|"<>]/g, "_")} - ${map_object.title.replace(/[/\\?%*:|"<>]/g, "_")} [${map_object.version.replace(/[/\\?%*:|"<>]/g, "_")}]]`.replace(/['_]/g, " ");
+            const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${map_object.artist} - ${map_object.title} [${map_object.version}]].osu`;
 
             let mods = '';
             
@@ -170,7 +169,7 @@ fs.readdir('./maps', async (err, files) => {
 
             const map_entry = [
                 id,
-                database_name,
+                file_name.substring(0, file_name.length - 4).replace(/['_]/g, " "),
                 max_score,
                 md5
             ];
