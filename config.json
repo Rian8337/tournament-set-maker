@@ -1,17 +1,35 @@
 {
-    "poolid": "",
-    "artist": "",
-    "title": "",
-    "format": [
-        {
-            "id": "",
-            "beatmapset_id": 0,
-            "difficulty_name": ""
-        },
-        {
-            "id": "",
-            "beatmapset_id": 0,
-            "difficulty_name": ""
-        }
-    ]
+    "poolid": "t8r2",
+    "artist": "V.A.",
+    "title": "osu!droid 8th Discord Tournament 2nd Round",
+    "format": {
+        "nm": [
+            "https://osu.ppy.sh/beatmapsets/310499#osu/771496",
+            "https://osu.ppy.sh/beatmapsets/802214#osu/1683700",
+            "https://osu.ppy.sh/beatmapsets/1011573#osu/2117268"
+        ],
+        "hd": [
+            "https://osu.ppy.sh/beatmapsets/20871#osu/73699",
+            "https://osu.ppy.sh/beatmapsets/36849#osu/119375",
+            "https://osu.ppy.sh/beatmapsets/192416#osu/457590"
+        ],
+        "hr": [
+            "https://osu.ppy.sh/beatmapsets/609189#osu/1312375",
+            "https://osu.ppy.sh/beatmapsets/23907#osu/81560",
+            "https://osu.ppy.sh/beatmapsets/384772#osu/930249"
+        ],
+        "dt": [
+            "https://osu.ppy.sh/beatmapsets/39412#osu/125660",
+            "https://osu.ppy.sh/beatmapsets/151033/#osu/372921",
+            "https://osu.ppy.sh/beatmapsets/788087#osu/1654075"
+        ],
+        "fm": [
+            "https://osu.ppy.sh/beatmapsets/300195#osu/673275",
+            "https://osu.ppy.sh/beatmapsets/289985#osu/727715",
+            "https://osu.ppy.sh/beatmapsets/617203#osu/1629264"
+        ],
+        "tb": [
+            "https://osu.ppy.sh/beatmapsets/743650#osu/1568203"
+        ]
+    }
 }
