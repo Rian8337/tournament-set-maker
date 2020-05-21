@@ -47,11 +47,18 @@ fs.readdir('./maps', async (err, files) => {
         map: []
     };
 
+    const map_length_entries = {
+        poolid: config.poolid,
+        map: []
+    };
+
     const map_artist = config.artist;
     const map_title = config.title;
     const formats = config.format;
     const newZip = new AdmZip();
     const map_list = [];
+
+    console.log(`Creating a tournament mapset with name "${map_artist} - ${map_title}.osz"`);
 
     for (const id in formats) {
         const beatmaps = formats[id];
@@ -174,16 +181,22 @@ fs.readdir('./maps', async (err, files) => {
                 md5
             ];
             map_list.push(map_entry);
+
+            const length_entry = [
+                pick,
+                map_object.total_length
+            ];
+            map_length_entries.push(length_entry);
             newZip.addFile(file_name, Buffer.from(lines, 'utf8'))
         }
     }
 
     const set_name = `./output/${map_artist} - ${map_title}.osz`;
-    console.log(`Saving beatmap with name "${map_artist} - ${map_title}.osz" in output folder`);
-    newZip.writeZip(set_name, err => {
+    console.log("Saving beatmap");
+    newZip.writeZip(set_name, function(err) {
         if (err) throw err;
         console.log("File saved");
-        console.log("Creating databaseEntry.json");
+        console.log("Creating databaseEntry1.json");
 
         const new_list = [];
         const modes = ['nm', 'hd', 'hr', 'dt', 'fm', 'tb'].map(m => m.toUpperCase());
@@ -202,9 +215,13 @@ fs.readdir('./maps', async (err, files) => {
         }
         map_entries.map = new_list;
 
-        fs.writeFile('databaseEntry.json', JSON.stringify(map_entries), err => {
+        fs.writeFile('databaseEntry1.json', JSON.stringify(map_entries), function(err) {
             if (err) throw err;
-            console.log("Done!")
+            console.log("Creating databaseEntry2.json");
+            fs.writeFile('databaseEntry2.json', JSON.stringify(map_length_entries), function(err) {
+                if (err) throw err;
+                console.log("Done")
+            })
         })
     })
 })
