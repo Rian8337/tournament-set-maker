@@ -1,10 +1,43 @@
 const AdmZip = require('adm-zip');
+const osuapikey = require('./credentials.json').api_key;
 const config = require('./config.json');
 const osudroid = require('osu-droid');
 const fs = require('fs');
+const https = require('https');
 const {MD5} = require('crypto-js');
 
-fs.readdir('./maps', (err, files) => {
+if (!osuapikey) return console.log("Please enter an osu! API key in credentials.json!");
+
+function fetchBeatmap(beatmap_id) {
+    return new Promise(resolve => {
+        const options = new URL(`https://osu.ppy.sh/api/get_beatmaps?k=${osuapikey}&b=${beatmap_id}`);
+        let content = '';
+
+        https.get(options, res => {
+            res.setEncoding("utf8");
+            res.on("data", chunk => {
+                content += chunk
+            });
+            res.on("end", () => {
+                let obj;
+                try {
+                    obj = JSON.parse(content)
+                } catch (e) {
+                    console.log("Error fetching beatmap ID", beatmap_id);
+                    return resolve(null);
+                }
+                if (!obj || !obj[0]) return resolve(null);
+                if (obj[0].mode != 0) {
+                    console.warn("Beatmap ID", beatmap_id, "is not an osu!standard map. Ignoring beatmap");
+                    return resolve(null)
+                }
+                resolve(obj[0])
+            })
+        })
+    })
+}
+
+fs.readdir('./maps', async (err, files) => {
     if (err) throw err;
     const file_list = files.filter(file => file.endsWith(".osz"));
     if (file_list.length === 0) return console.warn("No beatmaps found!");
@@ -21,144 +54,127 @@ fs.readdir('./maps', (err, files) => {
     const map_list = [];
 
     for (const id in formats) {
-        const mode = formats[id];
-        for (let i = 0; i < mode.length; ++i) {
-            const link = mode[i];
-            if (!link.includes("https://osu.ppy.sh/beatmapsets/")) {
-                console.warn(`Invalid link: ${link}`);
-                continue
+        const beatmaps = formats[id];
+        for await (const beatmap of beatmaps) {
+            let beatmapID = beatmap;
+            if (typeof beatmapID === 'string') {
+                const a = beatmapID.split("/");
+                beatmapID = parseInt(a[a.length - 1]);
+                if (isNaN(beatmapID)) {
+                    console.warn(`Invalid beatmap link: ${beatmapID}. Ignoring link`);
+                    continue
+                }
             }
 
-            const beatmapset_id = parseInt(link.replace("https://osu.ppy.sh/beatmapsets/", ""));
-            if (isNaN(beatmapset_id)) {
-                console.warn(`Invalid beatmapset ID in link ${link}`);
+            const map_object = await fetchBeatmap(beatmapID);
+            if (!map_object) {
+                console.warn(`Couldn't fetch beatmap for beatmap ID ${beatmapID}. Ignoring beatmap entry`);
                 continue
             }
+            const beatmapset_id = map_object.beatmapset_id;
+            const artist = map_object.artist;
+            const title = map_object.title;
+            const creator = map_object.creator;
+            const version = map_object.version;
 
-            const a = link.split("/");
-            const beatmap_id = parseInt(a[a.length - 1]);
-            if (isNaN(beatmap_id)) return console.warn(`Invalid beatmap ID in link ${link}`);
+            const i = beatmaps.findIndex(b => b === beatmap);
+            const pick = `${id.toUpperCase()}${beatmaps.length > 1 ? (i+1).toString() : ""}`;
 
-            const pick = `${id.toUpperCase()}${mode.length > 1 ? (i+1).toString() : ""}`;
-
-            const file = file_list.find(file => file.startsWith(beatmapset_id.toString()));
+            const file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {
-                console.warn(`No beatmap file found for mode ${pick}`);
+                console.warn(`No beatmap file found for mode ${pick} with beatmapset ID ${beatmapset_id}`);
                 continue
             }
             const zip = new AdmZip(`./maps/${file}`);
             const entries = zip.getEntries();
-            const osuEntries = entries.filter(entry => entry.entryName.endsWith(".osu"));
-            let musicIsDetected = false;
-
-            for (const entry of osuEntries) {
-                let artist = '';
-                let title = '';
-                let creator = '';
-                let version = '';
-                let isCorrectMap = true;
-                let lines = entry.getData().toString("utf8").split("\n");
-
-                for (let j = 0; j < lines.length; ++j) {
-                    let line = lines[j];
-                    if (line.startsWith(" ") || line.startsWith("_")) continue;
-                    line = line.trim();
-                    if (line.length === 0 || line.startsWith("//")) continue;
-
-                    const p = line.split(":").map(l => l.trim());
-
-                    if (line.startsWith("AudioFilename")) {
-                        if (!musicIsDetected) {
-                            const audioFile = entries.find(entry => entry.entryName === p[1]);
-                            newZip.addFile(`${pick}.mp3`, audioFile.getData())
-                        }
-                        lines[j] = `${p[0]}: ${pick}.mp3`;
-                        musicIsDetected = true;
-                        continue
-                    }
-
-                    // ignore non-osu!standard maps
-                    if (line.startsWith("Mode") && parseInt(p[1]) !== 0) {
-                        isCorrectMap = false;
-                        break
-                    }
-
-                    if (line.startsWith("Title")) {
-                        if (!line.includes("Unicode")) title = p[1];
-                        lines[j] = `${p[0]}:${map_title}`;
-                        continue
-                    }
-
-                    if (line.startsWith("Artist")) {
-                        if (!line.includes("Unicode")) artist = p[1];
-                        lines[j] = `${p[0]}:${map_artist}`;
-                        continue
-                    }
-
-                    if (line.startsWith("Creator")) {
-                        creator = p[1];
-                        continue
-                    }
-
-                    if (line.startsWith("Version")) {
-                        version = p[1];
-                        lines[j] = `${p[0]}:(${pick}) ${artist} - ${title} [${version}]`;
-                        continue
-                    }
-
-                    if (line.startsWith("BeatmapID")) {
-                        const mapID = parseInt(p[1]);
-                        if (mapID === beatmap_id) continue;
-                        artist = title = creator = version = '';
-                        isCorrectMap = false;
-                        break
-                    }
-
-                    if (line.startsWith("0,0")) {
-                        let s = line.split(",").map(l => l.replace(/"/g, ""));
-                        const file_format = s[2].substring(s[2].lastIndexOf("."));
-                        const backgroundFile = entries.find(entry => entry.entryName === s[2]);
-                        newZip.addFile(`${pick}${file_format}`, backgroundFile.getData());
-                        s[2] = `"${pick}${file_format}"`;
-                        lines[j] = s.join(",");
-                        break
-                    }
-                }
-
-                if (!isCorrectMap) continue;
-
-                lines = lines.join("\n");
-                
-                const md5 = MD5(lines).toString();
-                const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${artist.replace(/[\[\]/\\?%*:|"<>]/g, "_")} - ${title.replace(/[\[\]/\\?%*:|"<>]/g, "_")} [${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}]].osu`;
-
-                let mods = '';
-                
-                switch (id) {
-                    case "dt":
-                        mods = "DT";
-                        break;
-                    case "hr":
-                        mods = "HR";
-                        break;
-                    case "hd":
-                        mods = "HD"
-                }
-
-                const map = new osudroid.Parser().parse(entry.getData().toString("utf8")).map;
-                const mapinfo = new osudroid.MapInfo(map);
-                const max_score = mapinfo.max_score(mods);
-
-                const map_entry = [
-                    id,
-                    file_name.substring(0, file_name.length - 4),
-                    max_score,
-                    md5
-                ];
-                map_list.push(map_entry);
-                newZip.addFile(file_name, Buffer.from(lines, 'utf8'));
-                break
+            const osuFile = entries.find(entry => entry.entryName.endsWith(`[${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}].osu`));
+            if (!osuFile) {
+                console.warn(`Couldn't find beatmap file for pick ${pick}: ${version}`);
+                continue
             }
+            console.log(`${pick} beatmap found: ${artist} - ${title} (${creator}) [${version}]`);
+
+            let lines = osuFile.getData().toString("utf8").split("\n");
+            let musicFound = false;
+
+            for (let i = 0; i < lines.length; ++i) {
+                let line = lines[i];
+                if (line.startsWith(" ") || line.startsWith("_")) continue;
+                line = line.trim();
+                if (line.length === 0 || line.startsWith("//")) continue;
+
+                const p = line.split(":").map(l => l.trim());
+
+                if (line.startsWith("AudioFilename")) {
+                    const audioFile = entries.find(entry => entry.entryName === p[1]);
+                    if (!audioFile) {
+                        console.warn(`Couldn't find audio file for pick ${pick}. Ignoring beatmap`);
+                        break
+                    }
+                    newZip.addFile(`${pick}.mp3`, audioFile.getData());
+                    musicFound = true;
+                    lines[i] = `${p[0]}: ${pick}.mp3`;
+                    continue
+                }
+
+                if (line.startsWith("Title")) {
+                    lines[i] = `${p[0]}:${map_title}`;
+                    continue
+                }
+
+                if (line.startsWith("Artist")) {
+                    lines[i] = `${p[0]}:${map_artist}`;
+                    continue
+                }
+
+                if (line.startsWith("Version")) {
+                    lines[i] = `${p[0]}:(${pick}) ${artist} - ${title} [${version}]`;
+                    continue
+                }
+
+                if (line.startsWith("0,0")) {
+                    let s = line.split(",").map(l => l.replace(/"/g, ""));
+                    const file_format = s[2].substring(s[2].lastIndexOf("."));
+                    const backgroundFile = entries.find(entry => entry.entryName === s[2]);
+                    newZip.addFile(`${pick}${file_format}`, backgroundFile.getData());
+                    s[2] = `"${pick}${file_format}"`;
+                    lines[i] = s.join(",");
+                    break
+                }
+            }
+
+            if (!musicFound) continue;
+
+            lines = lines.join("\n");
+            
+            const md5 = MD5(lines).toString();
+            const file_name = `${map_artist} - ${map_title} (${creator.replace(/[\[\]/\\?%*:|"<>]/g, "_")}) [(${pick}) ${map_object.artist.replace(/[\[\]/\\?%*:|"<>]/g, "_")} - ${map_object.title.replace(/[\[\]/\\?%*:|"<>]/g, "_")} [${map_object.version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}]].osu`;
+
+            let mods = '';
+            
+            switch (id) {
+                case "dt":
+                    mods = "DT";
+                    break;
+                case "hr":
+                    mods = "HR";
+                    break;
+                case "hd":
+                    mods = "HD"
+            }
+
+            const map = new osudroid.Parser().parse(osuFile.getData().toString("utf8")).map;
+            const mapinfo = new osudroid.MapInfo(map);
+            const max_score = mapinfo.max_score(mods);
+
+            const map_entry = [
+                id,
+                file_name.substring(0, file_name.length - 4),
+                max_score,
+                md5
+            ];
+            map_list.push(map_entry);
+            newZip.addFile(file_name, Buffer.from(lines, 'utf8'))
         }
     }
 
@@ -170,10 +186,11 @@ fs.readdir('./maps', (err, files) => {
         const modes = ['nm', 'hd', 'hr', 'dt', 'fm', 'tb'].map(m => m.toUpperCase());
         for (const mode of modes) {
             let id = 1;
-            const mode_list = map_list.filter(map => map[1].includes(`[(${mode}`)).map(map => map[1].replace(/'_/g, " "));
+            const mode_list = map_list.filter(map => map[1].includes(`[(${mode}`));
             if (mode !== 'TB') {
                 while (mode_list.length > 0) {
                     const mapIndex = mode_list.findIndex(map => map[1].includes(`[(${mode}${id})`));
+                    mode_list[mapIndex][1].replace(/'_/g, " ");
                     new_list.push(mode_list[mapIndex]);
                     ++id;
                     mode_list.splice(mapIndex, 1)
