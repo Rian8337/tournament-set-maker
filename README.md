@@ -24,9 +24,9 @@ This field will be used as the beatmap's general artist (for example, `Various A
 This field will be used as the beatmap's general title (for example, `osu!droid 8th Discord Tournament`).
 
 #### format
-This field contains beatmap links that will be used to make the tournament set. All links must be in format `https://osu.ppy.sh/beatmapsets/{BEATMAPSET_ID}#osu/{BEATMAP_ID}`.
+This field contains beatmap ID or link that will be used to make the tournament set. All links must be in format `https://osu.ppy.sh/beatmapsets/{BEATMAPSET_ID}#osu/{BEATMAP_ID}`.
 
-The assignment of mode index is based on the position of the beatmap link (i.e. NM1 will be the first element in `nm` array, HD2 will be the second element in `hd` array) and the amount of beatmaps in each array. For example, if `nm` array only has one beatmap, the beatmap mode will be assigned as `NM`. Conversely, each beatmap's mode will be set to `NM1`, `NM2`, etc.
+The assignment of mode index is based on the position of the beatmap in the array (i.e. NM1 will be the first element in `nm` array, HD2 will be the second element in `hd` array) and the amount of beatmaps in each array. For example, if `nm` array only has one beatmap, the beatmap mode will be assigned as `NM`. Otherwise, each beatmap's mode will be set to `NM1`, `NM2`, etc.
 
 An example of correct JSON file format:
 ```json
@@ -37,31 +37,31 @@ An example of correct JSON file format:
     "format": {
         "nm": [
             "https://osu.ppy.sh/beatmapsets/310499#osu/771496",
-            "https://osu.ppy.sh/beatmapsets/802214#osu/1683700",
+            1683700,
             "https://osu.ppy.sh/beatmapsets/1011573#osu/2117268"
         ],
         "hd": [
-            "https://osu.ppy.sh/beatmapsets/20871#osu/73699",
+            73699,
             "https://osu.ppy.sh/beatmapsets/36849#osu/119375",
             "https://osu.ppy.sh/beatmapsets/192416#osu/457590"
         ],
         "hr": [
-            "https://osu.ppy.sh/beatmapsets/609189#osu/1312375",
+            "https://osu.ppy.sh/beatmapsets/609189#osu/1332900",
             "https://osu.ppy.sh/beatmapsets/23907#osu/81560",
-            "https://osu.ppy.sh/beatmapsets/384772#osu/930249"
+            930249
         ],
         "dt": [
-            "https://osu.ppy.sh/beatmapsets/39412#osu/125660",
-            "https://osu.ppy.sh/beatmapsets/151033/#osu/372921",
+            125660,
+            "https://osu.ppy.sh/beatmapsets/151033/#osu/372448",
             "https://osu.ppy.sh/beatmapsets/788087#osu/1654075"
         ],
         "fm": [
             "https://osu.ppy.sh/beatmapsets/300195#osu/673275",
-            "https://osu.ppy.sh/beatmapsets/289985#osu/727715",
+            727715,
             "https://osu.ppy.sh/beatmapsets/617203#osu/1629264"
         ],
         "tb": [
-            "https://osu.ppy.sh/beatmapsets/743650#osu/1568203"
+            1568203
         ]
     }
 }
