@@ -179,8 +179,11 @@ fs.readdir('./maps', async (err, files) => {
     }
 
     const set_name = `./output/${map_artist} - ${map_title}.osz`;
+    console.log(`Saving beatmap with name "${map_artist} - ${map_title}.osz" in output folder`);
     newZip.writeZip(set_name, err => {
         if (err) throw err;
+        console.log("File saved");
+        console.log("Creating databaseEntry.json");
 
         const new_list = [];
         const modes = ['nm', 'hd', 'hr', 'dt', 'fm', 'tb'].map(m => m.toUpperCase());
