@@ -186,7 +186,7 @@ fs.readdir('./maps', async (err, files) => {
                 pick,
                 map_object.total_length
             ];
-            map_length_entries.push(length_entry);
+            map_length_entries.map.push(length_entry);
             newZip.addFile(file_name, Buffer.from(lines, 'utf8'))
         }
     }
