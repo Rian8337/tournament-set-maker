@@ -170,11 +170,11 @@ fs.readdir('./maps', (err, files) => {
         const modes = ['nm', 'hd', 'hr', 'dt', 'fm', 'tb'].map(m => m.toUpperCase());
         for (const mode of modes) {
             let id = 1;
-            const mode_list = map_list.filter(map => map[1].includes(`[(${mode}`));
+            const mode_list = map_list.filter(map => map[1].includes(`[(${mode}`)).map(map => map[1].replace(/'_/g, " "));
             if (mode !== 'TB') {
                 while (mode_list.length > 0) {
                     const mapIndex = mode_list.findIndex(map => map[1].includes(`[(${mode}${id})`));
-                    new_list.push(mode_list[mapIndex].replace(/'_/g, " "));
+                    new_list.push(mode_list[mapIndex]);
                     ++id;
                     mode_list.splice(mapIndex, 1)
                 }
