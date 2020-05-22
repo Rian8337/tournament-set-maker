@@ -58,8 +58,8 @@ fs.readdir('./maps', async (err, files) => {
     const newZip = new AdmZip();
     const map_list = [];
 
-    for (const id in formats) console.log(`Found ${formats[id].length} ${id} map(s)`);
-    console.log(`Creating a tournament mapset with name "${map_artist} - ${map_title}.osz"`);
+    for (const id in formats) console.log(`Found ${formats[id].length} ${id.toUpperCase()} map(s)`);
+    console.log(`Creating a tournament mapset with name "${map_artist} - ${map_title}.osz"\n`);
 
     for (const id in formats) {
         const beatmaps = formats[id];
