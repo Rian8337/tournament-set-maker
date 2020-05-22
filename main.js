@@ -95,10 +95,14 @@ fs.readdir('./maps', async (err, files) => {
             }
             const zip = new AdmZip(`./maps/${file}`);
             const entries = zip.getEntries();
-            const osuFile = entries.find(entry => entry.entryName.endsWith(`[${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}].osu`));
+            let osuFile = entries.find(entry => entry.entryName.endsWith(`[${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}].osu`));
             if (!osuFile) {
-                console.warn(`Couldn't find beatmap file for pick ${pick}: ${version}`);
-                continue
+                // try to detect with lowercase if not found due to inconsistencies with .osu file saving
+                osuFile = entries.find(entry => entry.entryName.toLowerCase().endsWith(`[${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}].osu`));
+                if (!osuFile) {
+                    console.warn(`Couldn't find beatmap file for pick ${pick}: ${version}`);
+                    continue
+                }
             }
             console.log(`${pick} beatmap found: ${artist} - ${title} (${creator}) [${version}]`);
 
