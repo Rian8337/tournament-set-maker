@@ -112,6 +112,7 @@ fs.readdir('./maps', async (err, files) => {
             let file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {
                 console.warn(`No beatmap file found for ${pick} with beatmapset ID ${beatmapset_id}. Downloading from bloodcat`);
+                console.log("Download complete");
                 file = await downloadBeatmap(beatmapset_id)
             }
             const zip = new AdmZip(`./maps/${file}`);
