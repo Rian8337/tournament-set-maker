@@ -49,7 +49,7 @@ function downloadBeatmap(beatmapset_id) {
             });
             res.on("end", () => {
                 const result = Buffer.concat(data_array);
-                fs.writeFile(`./map/${file_name}`, result, err => {
+                fs.writeFile(`./maps/${file_name}`, result, err => {
                     if (err) throw err;
                     resolve(file_name)
                 })
