@@ -61,7 +61,7 @@ function downloadBeatmap(beatmapset_id) {
 fs.readdir('./maps', async (err, files) => {
     if (err) throw err;
     const file_list = files.filter(file => file.endsWith(".osz"));
-    if (file_list.length === 0) return console.warn("No beatmaps found!");
+    if (file_list.length === 0) console.warn("No beatmaps found! If you choose to download maps from Bloodcat, you can ignore this warning.");
 
     const map_entries = {
         poolid: config.poolid,
@@ -109,9 +109,9 @@ fs.readdir('./maps', async (err, files) => {
             const i = beatmaps.findIndex(b => b === beatmap);
             const pick = `${id.toUpperCase()}${beatmaps.length > 1 ? (i+1).toString() : ""}`;
 
-            const file = file_list.find(file => file.startsWith(beatmapset_id));
+            let file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {
-                console.warn(`No beatmap file found for mode ${pick} with beatmapset ID ${beatmapset_id}. Downloading from bloodcat`);
+                console.warn(`No beatmap file found for ${pick} with beatmapset ID ${beatmapset_id}. Downloading from bloodcat`);
                 file = await downloadBeatmap(beatmapset_id)
             }
             const zip = new AdmZip(`./maps/${file}`);
