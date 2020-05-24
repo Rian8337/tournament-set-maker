@@ -37,6 +37,27 @@ function fetchBeatmap(beatmap_id) {
     })
 }
 
+function downloadBeatmap(beatmapset_id) {
+    return new Promise(resolve => {
+        const file_name = `${beatmapset_id}.osz`;
+        const options = new URL(`https://bloodcat.com/osu/_data/beatmaps/${beatmapset_id}.osz`);
+        const data_array = [];
+
+        https.get(options, res => {
+            res.on("data", chunk => {
+                data_array.push(Buffer.from(chunk))
+            });
+            res.on("end", () => {
+                const result = Buffer.concat(data_array);
+                fs.writeFile(`./map/${file_name}`, result, err => {
+                    if (err) throw err;
+                    resolve(file_name)
+                })
+            })
+        }).end()
+    })
+}
+
 fs.readdir('./maps', async (err, files) => {
     if (err) throw err;
     const file_list = files.filter(file => file.endsWith(".osz"));
@@ -90,8 +111,8 @@ fs.readdir('./maps', async (err, files) => {
 
             const file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {
-                console.warn(`No beatmap file found for mode ${pick} with beatmapset ID ${beatmapset_id}`);
-                continue
+                console.warn(`No beatmap file found for mode ${pick} with beatmapset ID ${beatmapset_id}. Downloading from bloodcat`);
+                file = await downloadBeatmap(beatmapset_id)
             }
             const zip = new AdmZip(`./maps/${file}`);
             const entries = zip.getEntries();
