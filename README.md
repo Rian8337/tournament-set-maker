@@ -1,6 +1,11 @@
 # osu!droid Tournament Set Maker
 A NodeJS script that can create mapsets for osu!droid tournaments.
 
+### Features
+- Automatically create mapsets for your tournament with minimal effort
+- Automatic beatmap download if you are lazy to download beatmaps (uses Bloodcat)
+- Semi-easy configuration as this still uses JSON file
+
 ### Requirements
 - [NodeJS](https://nodejs.org) (any version would do, however v12 or above (LTS) is recommended)
 - A text editor that can edit JSON files. For convenience, it is recommended to use an IDE/code editor such as [Visual Studio Code](https://code.visualstudio.com)
