@@ -242,10 +242,10 @@ fs.readdir('./maps', async (err, files) => {
         }
         map_entries.map = new_list;
 
-        fs.writeFile('databaseEntry1.json', JSON.stringify(map_entries), function(err) {
+        fs.writeFile('databaseEntry1.json', JSON.stringify(map_entries, null, "\t"), function(err) {
             if (err) throw err;
             console.log("Creating databaseEntry2.json");
-            fs.writeFile('databaseEntry2.json', JSON.stringify(map_length_entries), function(err) {
+            fs.writeFile('databaseEntry2.json', JSON.stringify(map_length_entries, null, "\t"), function(err) {
                 if (err) throw err;
                 console.log("Done")
             })
