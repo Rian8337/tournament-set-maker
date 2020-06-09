@@ -47,7 +47,7 @@ function fetchBeatmap(beatmap_id) {
  * Asynchronously downloads beatmap set from Bloodcat.
  * 
  * @param {number} beatmapset_id The beatmap set ID.
- * @returns {Promise<String>} The beatmap file name.
+ * @returns {Promise<string>} The beatmap file name.
  */
 function downloadBeatmap(beatmapset_id) {
     return new Promise(resolve => {
@@ -138,8 +138,8 @@ fs.readdir('./maps', async (err, files) => {
             let file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {
                 console.warn(`No beatmap file found for ${pick} with beatmapset ID ${beatmapset_id}. Downloading from bloodcat`);
-                console.log("Download complete");
-                file = await downloadBeatmap(beatmapset_id)
+                file = await downloadBeatmap(beatmapset_id);
+                console.log("Download complete")
             }
             const zip = new AdmZip(`./maps/${file}`);
             const entries = zip.getEntries();
