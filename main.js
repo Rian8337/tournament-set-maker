@@ -89,7 +89,6 @@ fs.readdir('./maps', async (err, files) => {
     const map_title = config.title;
     const formats = config.format;
     const newZip = new AdmZip();
-    const map_list = [];
     const special_picks = config.special_picks;
 
     for (const id in formats) console.log(`Found ${formats[id].length} ${id.toUpperCase()} map(s)`);
@@ -97,7 +96,7 @@ fs.readdir('./maps', async (err, files) => {
 
     for (const id in formats) {
         const beatmaps = formats[id];
-        const special_pick = special_picks[id];
+        const special_pick_count = special_picks[id];
         let count = 0;
         let special_count = 0;
         for await (const beatmap of beatmaps) {
@@ -125,8 +124,8 @@ fs.readdir('./maps', async (err, files) => {
 
             let pick = id.toUpperCase();
             if (beatmaps.length > 1) {
-                if (special_pick.enabled && beatmaps.length - count < special_pick.count) {
-                    if (special_pick.count > 1) {
+                if (special_pick_count && beatmaps.length - count < special_pick_count) {
+                    if (special_pick_count > 1) {
                         ++special_count;
                         pick += `S${special_count}`
                     }
@@ -233,41 +232,24 @@ fs.readdir('./maps', async (err, files) => {
                 max_score,
                 md5
             ];
-            map_list.push(map_entry);
+            map_entries.map.push(map_entry);
 
             const length_entry = [
                 pick,
-                map_object.total_length
+                parseInt(map_object.total_length)
             ];
             map_length_entries.map.push(length_entry);
             newZip.addFile(file_name, Buffer.from(lines, 'utf8'))
         }
     }
 
-    const set_name = `./output/${map_artist} - ${map_title}.osz`;
-    console.log("Saving beatmap");
-    newZip.writeZip(set_name, function(err) {
+    const set_directory = `./output/${map_artist} - ${map_title}.osz`;
+    console.log("Saving tournament mapset");
+
+    newZip.writeZip(set_directory, function(err) {
         if (err) throw err;
-        console.log("File saved");
+        console.log("Tournament mapset saved");
         console.log("Creating databaseEntry1.json");
-
-        const new_list = [];
-        const modes = ['nm', 'hd', 'hr', 'dt', 'fm', 'tb'].map(m => m.toUpperCase());
-        for (const mode of modes) {
-            let id = 1;
-            const mode_list = map_list.filter(map => map[1].includes(`[(${mode}`));
-            if (mode !== 'TB') {
-                while (mode_list.length > 0) {
-                    const mapIndex = mode_list.findIndex(map => map[1].includes(`[(${mode}${id})`));
-                    new_list.push(mode_list[mapIndex]);
-                    ++id;
-                    mode_list.splice(mapIndex, 1)
-                }
-            }
-            else new_list.push(mode_list[0])
-        }
-        map_entries.map = new_list;
-
         fs.writeFile('databaseEntry1.json', JSON.stringify(map_entries, null, "\t"), function(err) {
             if (err) throw err;
             console.log("Creating databaseEntry2.json");
