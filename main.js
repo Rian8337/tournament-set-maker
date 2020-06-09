@@ -8,6 +8,12 @@ const {MD5} = require('crypto-js');
 
 if (!osuapikey) return console.log("Please enter an osu! API key in credentials.json!");
 
+/**
+ * Fetches beatmap from osu! API.
+ * 
+ * @param {number} beatmap_id The beatmap ID. 
+ * @returns {Promise<Object>} An object containing beatmap information.
+ */
 function fetchBeatmap(beatmap_id) {
     return new Promise(resolve => {
         const options = new URL(`https://osu.ppy.sh/api/get_beatmaps?k=${osuapikey}&b=${beatmap_id}`);
@@ -37,6 +43,12 @@ function fetchBeatmap(beatmap_id) {
     })
 }
 
+/**
+ * Asynchronously downloads beatmap set from Bloodcat.
+ * 
+ * @param {number} beatmapset_id The beatmap set ID.
+ * @returns {Promise<String>} The beatmap file name.
+ */
 function downloadBeatmap(beatmapset_id) {
     return new Promise(resolve => {
         const file_name = `${beatmapset_id}.osz`;
@@ -78,12 +90,16 @@ fs.readdir('./maps', async (err, files) => {
     const formats = config.format;
     const newZip = new AdmZip();
     const map_list = [];
+    const special_picks = config.special_picks;
 
     for (const id in formats) console.log(`Found ${formats[id].length} ${id.toUpperCase()} map(s)`);
     console.log(`Creating a tournament mapset with name "${map_artist} - ${map_title}.osz"\n`);
 
     for (const id in formats) {
         const beatmaps = formats[id];
+        const special_pick = special_picks[id];
+        let count = 0;
+        let special_count = 0;
         for await (const beatmap of beatmaps) {
             let beatmapID = beatmap;
             if (typeof beatmapID === 'string') {
@@ -105,9 +121,19 @@ fs.readdir('./maps', async (err, files) => {
             const title = map_object.title;
             const creator = map_object.creator;
             const version = map_object.version;
+            ++count;
 
-            const i = beatmaps.findIndex(b => b === beatmap);
-            const pick = `${id.toUpperCase()}${beatmaps.length > 1 ? (i+1).toString() : ""}`;
+            let pick = id.toUpperCase();
+            if (beatmaps.length > 1) {
+                if (special_pick.enabled && beatmaps.length - count < special_pick.count) {
+                    if (special_pick.count > 1) {
+                        ++special_count;
+                        pick += `S${special_count}`
+                    }
+                    else pick += "S"
+                }
+                else pick += count
+            } 
 
             let file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {

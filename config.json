@@ -2,12 +2,44 @@
     "poolid": "",
     "artist": "",
     "title": "",
+    "special_picks": {
+        "nm": {
+            "enabled": false,
+            "count": 1
+        },
+        "hd": {
+            "enabled": false,
+            "count": 1
+        },
+        "hr": {
+            "enabled": false,
+            "count": 1
+        },
+        "dt": {
+            "enabled": false,
+            "count": 1
+        },
+        "fm": {
+            "enabled": false,
+            "count": 1
+        },
+        "tb": {
+            "enabled": false,
+            "count": 1
+        }
+    },
     "format": {
-        "nm": [],
-        "hd": [],
-        "hr": [],
-        "dt": [],
-        "fm": [],
-        "tb": []
+        "nm": [
+        ],
+        "hd": [
+        ],
+        "hr": [
+        ],
+        "dt": [
+        ],
+        "fm": [
+        ],
+        "tb": [
+        ]
     }
 }
