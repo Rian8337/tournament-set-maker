@@ -3,30 +3,12 @@
     "artist": "",
     "title": "",
     "special_picks": {
-        "nm": {
-            "enabled": false,
-            "count": 1
-        },
-        "hd": {
-            "enabled": false,
-            "count": 1
-        },
-        "hr": {
-            "enabled": false,
-            "count": 1
-        },
-        "dt": {
-            "enabled": false,
-            "count": 1
-        },
-        "fm": {
-            "enabled": false,
-            "count": 1
-        },
-        "tb": {
-            "enabled": false,
-            "count": 1
-        }
+        "nm": 0,
+        "hd": 0,
+        "hr": 0,
+        "dt": 0,
+        "fm": 0,
+        "tb": 0
     },
     "format": {
         "nm": [
