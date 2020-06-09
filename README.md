@@ -31,18 +31,12 @@ This field will be used as the beatmap's general artist (for example, `Various A
 This field will be used as the beatmap's general title (for example, `osu!droid 8th Discord Tournament`).
 
 #### special_picks
-This field configures if special picks exists in a mode.
-##### enabled
-Whether or not the corresponding mode has special picks.
-##### count
-The amount of special picks in the corresponding mode.
+This field specifies the amount of special picks in a mode.
 
 #### format
 This field contains beatmap ID or link that will be used to make the tournament set. All links must be in format `https://osu.ppy.sh/beatmapsets/{BEATMAPSET_ID}#osu/{BEATMAP_ID}`.
 
-The assignment of mode index is based on the position of the beatmap in the array (i.e. NM1 will be the first element in `nm` array, HD2 will be the second element in `hd` array) and the amount of beatmaps in each array. For example, if `nm` array only has one beatmap, the beatmap mode will be assigned as `NM`. Otherwise, each beatmap's mode will be set to `NM1`, `NM2`, etc. The same applies for special picks (except added with `S` before mode index) if enabled.
-
-For special picks, the `n` latest beatmap placed in the corresponding mode array will be considered as special pick, where `n` is the amount of special picks for said mode.
+The assignment of mode index is based on the position of the beatmap in the array (i.e. NM1 will be the first element in `nm` array, HD2 will be the second element in `hd` array) and the amount of beatmaps in each array. For example, if `nm` array only has one beatmap, the beatmap mode will be assigned as `NM`. Otherwise, each beatmap's mode will be set to `NM1`, `NM2`, etc. The same applies for special picks (except added with `S` before mode index) if exists. The `n` latest beatmap placed in the corresponding mode array will be considered as special pick, where `n` is the amount of special picks for said mode.
 
 An example of correct JSON file format:
 ```json
@@ -51,30 +45,12 @@ An example of correct JSON file format:
     "artist": "V.A.",
     "title": "osu!droid 8th Discord Tournament 2nd Round",
     "special_picks": {
-        "nm": {
-            "enabled": true,
-            "count": 1
-        },
-        "hd": {
-            "enabled": false,
-            "count": 1
-        },
-        "hr": {
-            "enabled": false,
-            "count": 1
-        },
-        "dt": {
-            "enabled": false,
-            "count": 1
-        },
-        "fm": {
-            "enabled": false,
-            "count": 1
-        },
-        "tb": {
-            "enabled": false,
-            "count": 1
-        }
+        "nm": 1,
+        "hd": 0,
+        "hr": 3,
+        "dt": 0,
+        "fm": 2,
+        "tb": 1
     },
     "format": {
         "nm": [
