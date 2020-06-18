@@ -21,6 +21,8 @@ A NodeJS script that can create mapsets for osu!droid tournaments.
 7. The mapset is ready to use and can be found inside the output folder. Two `databaseEntry.json` files will be created if you want to enter the mapset for [Alice](https://github.com/Rian8337/Alice). Please ask `@Rian8337#0001` in Discord if you want to do so.
 
 ### config.json configuration
+This section covers the configuration guide of config.json. If you are not using a code editor, you can use JSON linters to validate your JSON file such as [this](https://jsonlint.com/) website.
+
 #### poolid
 `poolid` is the pool's ID. This will be used if you want to enter the mapset for Alice. It's best to ask to bot creators before modifying this field.
 
