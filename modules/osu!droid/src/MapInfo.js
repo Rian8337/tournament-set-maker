@@ -1,8 +1,6 @@
 const mods = require('./mods');
 const object_types = require('./object_types');
 const Beatmap = require('./Beatmap');
-const MapStats = require('./MapStats');
-const Parser = require('./Parser');
 
 class MapInfo {
     /**
@@ -28,9 +26,8 @@ class MapInfo {
         if (!this.map) {
             return 0;
         }
-        let stats = new MapStats(this.map).calculate({mode: "osu", mods: mod});
         const modbits = mods.modbits_from_string(mod);
-        let diff_multiplier = 1 + stats.od / 10 + stats.hp / 10 + (stats.cs - 3) / 4;
+        let diff_multiplier = 1 + this.map.od / 10 + this.map.hp / 10 + (this.map.cs - 3) / 4;
 
         // score multiplier
         let score_multiplier = 1;
