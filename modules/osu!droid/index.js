@@ -30,11 +30,6 @@ module.exports = {
     MapInfo: require('./src/MapInfo'),
 
     /**
-     * Holds general beatmap statistics for further modifications. 
-     */
-    MapStats: require('./src/MapStats'),
-
-    /**
      * An object containing bitwise constant of mods in both osu!droid and osu!standard as well as conversion methods.
      */
     mods: require('./src/mods'),
