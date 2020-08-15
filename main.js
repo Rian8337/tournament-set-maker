@@ -1,10 +1,16 @@
 const AdmZip = require('adm-zip');
 const osuapikey = require('./credentials.json').api_key;
+const readline = require('readline');
 const config = require('./config.json');
 const osudroid = require('osu-droid');
 const fs = require('fs');
 const https = require('https');
 const {MD5} = require('crypto-js');
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
 if (!osuapikey) return console.log("Please enter an osu! API key in credentials.json!");
 
@@ -44,6 +50,38 @@ function fetchBeatmap(beatmap_id) {
 }
 
 /**
+ * Asks the user to put the beatmap file inside maps folder.
+ * 
+ * @param {number} beatmapset_id The beatmap set ID.
+ * @returns {Promise<string>} The beatmap's file name.
+ */
+function notifyMapInsert(beatmapset_id) {
+    return new Promise(resolve => {
+        rl.question(`Mapset not found for beatmapset ID ${beatmapset_id}. Please insert the corresponding beatmap set to maps folder, then press Enter (note: the mapset must have the beatmapset ID in front of its name, for example: "${beatmapset_id}.osz" (without quotation marks)).`, answer => {
+            fs.readdir('./maps', (err, files) => {
+                if (err) {
+                    console.warn("Error opening maps directory:\n\n" + err);
+                    return resolve(notifyMapInsert(beatmapset_id))
+                }
+                const file_list = files.filter(f => f.endsWith(".osz"));
+                for (const file of file_list) {
+                    if (!file.startsWith(beatmapset_id.toString())) {
+                        continue;
+                    }
+                    const stat = fs.lstatSync(`./maps/${file}`);
+                    if (stat.isDirectory()) {
+                        continue;
+                    }
+                    console.log(`Beatmapset found: ${file}`);
+                    return resolve(file);
+                }
+                resolve(notifyMapInsert(beatmapset_id));
+            })
+        })
+    })
+}
+
+/**
  * Asynchronously downloads beatmap set from Bloodcat.
  * 
  * @param {number} beatmapset_id The beatmap set ID.
@@ -51,7 +89,7 @@ function fetchBeatmap(beatmap_id) {
  */
 function downloadBeatmap(beatmapset_id) {
     return new Promise(resolve => {
-        const file_name = `${beatmapset_id}.osz`;
+        let file_name = `${beatmapset_id}.osz`;
         const options = new URL(`https://bloodcat.com/osu/_data/beatmaps/${beatmapset_id}.osz`);
         const data_array = [];
 
@@ -59,12 +97,17 @@ function downloadBeatmap(beatmapset_id) {
             res.on("data", chunk => {
                 data_array.push(Buffer.from(chunk))
             });
-            res.on("end", () => {
+            res.on("end", async () => {
                 const result = Buffer.concat(data_array);
-                fs.writeFile(`./maps/${file_name}`, result, err => {
-                    if (err) throw err;
-                    resolve(file_name)
-                })
+                if (result.toString("utf8").includes("File not found")) {
+                    file_name = await notifyMapInsert(beatmapset_id);
+                    resolve(file_name);
+                } else {
+                    fs.writeFile(`./maps/${file_name}`, result, err => {
+                        if (err) throw err;
+                        resolve(file_name);
+                    })
+                }
             })
         }).end()
     })
@@ -73,7 +116,9 @@ function downloadBeatmap(beatmapset_id) {
 fs.readdir('./maps', async (err, files) => {
     if (err) throw err;
     const file_list = files.filter(file => file.endsWith(".osz"));
-    if (file_list.length === 0) console.warn("No beatmaps found! If you choose to download maps from Bloodcat, you can ignore this warning.");
+    if (file_list.length === 0) {
+        console.warn("No beatmaps found! If you choose to download maps from Bloodcat, you can ignore this warning.");
+    }
 
     const map_entries = {
         poolid: config.poolid,
@@ -91,7 +136,9 @@ fs.readdir('./maps', async (err, files) => {
     const newZip = new AdmZip();
     const special_picks = config.special_picks;
 
-    for (const id in formats) console.log(`Found ${formats[id].length} ${id.toUpperCase()} map(s)`);
+    for (const id in formats) {
+        console.log(`Found ${formats[id].length} ${id.toUpperCase()} map(s)`);
+    }
     console.log(`Creating a tournament mapset with name "${map_artist} - ${map_title}.osz"\n`);
 
     for (const id in formats) {
@@ -99,6 +146,7 @@ fs.readdir('./maps', async (err, files) => {
         const special_pick_count = special_picks[id];
         let count = 0;
         let special_count = 0;
+        
         for await (const beatmap of beatmaps) {
             let beatmapID = beatmap;
             if (typeof beatmapID === 'string') {
@@ -106,14 +154,14 @@ fs.readdir('./maps', async (err, files) => {
                 beatmapID = parseInt(a[a.length - 1]);
                 if (isNaN(beatmapID)) {
                     console.warn(`Invalid beatmap link: ${beatmapID}. Ignoring link`);
-                    continue
+                    continue;
                 }
             }
 
             const map_object = await fetchBeatmap(beatmapID);
             if (!map_object) {
                 console.warn(`Couldn't fetch beatmap for beatmap ID ${beatmapID}. Ignoring beatmap entry`);
-                continue
+                continue;
             }
             const beatmapset_id = map_object.beatmapset_id;
             const artist = map_object.artist;
@@ -127,29 +175,29 @@ fs.readdir('./maps', async (err, files) => {
                 if (special_pick_count && beatmaps.length - count < special_pick_count) {
                     if (special_pick_count > 1) {
                         ++special_count;
-                        pick += `S${special_count}`
+                        pick += `S${special_count}`;
                     }
-                    else pick += "S"
+                    else {
+                        pick += "S";
+                    }
                 }
-                else pick += count
+                else {
+                    pick += count;
+                }
             } 
 
             let file = file_list.find(file => file.startsWith(beatmapset_id));
             if (!file) {
                 console.warn(`No beatmap file found for ${pick} with beatmapset ID ${beatmapset_id}. Downloading from bloodcat`);
                 file = await downloadBeatmap(beatmapset_id);
-                console.log("Download complete")
+                console.log("Download complete");
             }
             const zip = new AdmZip(`./maps/${file}`);
             const entries = zip.getEntries();
-            let osuFile = entries.find(entry => entry.entryName.endsWith(`[${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}].osu`));
+            const osuFile = entries.find(entry => new osudroid.Parser().parse(entry.getData().toString("utf8")).map.version === version);
             if (!osuFile) {
-                // try to detect with lowercase if not found due to inconsistencies with .osu file saving
-                osuFile = entries.find(entry => entry.entryName.toLowerCase().endsWith(`[${version.replace(/[\[\]/\\?%*:|"<>]/g, "_")}].osu`));
-                if (!osuFile) {
-                    console.warn(`Couldn't find beatmap file for pick ${pick}: ${version}`);
-                    continue
-                }
+                console.warn(`Couldn't find beatmap file for pick ${pick}: ${version}`);
+                continue;
             }
             console.log(`${pick} beatmap found: ${artist} - ${title} (${creator}) [${version}]`);
 
@@ -158,9 +206,13 @@ fs.readdir('./maps', async (err, files) => {
 
             for (let i = 0; i < lines.length; ++i) {
                 let line = lines[i];
-                if (line.startsWith(" ") || line.startsWith("_")) continue;
+                if (line.startsWith(" ") || line.startsWith("_")) {
+                    continue;
+                }
                 line = line.trim();
-                if (line.length === 0 || line.startsWith("//")) continue;
+                if (line.length === 0 || line.startsWith("//")) {
+                    continue;
+                }
 
                 const p = line.split(":").map(l => l.trim());
 
@@ -168,27 +220,27 @@ fs.readdir('./maps', async (err, files) => {
                     const audioFile = entries.find(entry => entry.entryName === p[1]);
                     if (!audioFile) {
                         console.warn(`Couldn't find audio file for pick ${pick}. Ignoring beatmap`);
-                        break
+                        break;
                     }
                     newZip.addFile(`${pick}.mp3`, audioFile.getData());
                     musicFound = true;
                     lines[i] = `${p[0]}: ${pick}.mp3`;
-                    continue
+                    continue;
                 }
 
                 if (line.startsWith("Title")) {
                     lines[i] = `${p[0]}:${map_title}`;
-                    continue
+                    continue;
                 }
 
                 if (line.startsWith("Artist")) {
                     lines[i] = `${p[0]}:${map_artist}`;
-                    continue
+                    continue;
                 }
 
                 if (line.startsWith("Version")) {
                     lines[i] = `${p[0]}:(${pick}) ${artist} - ${title} [${version}]`;
-                    continue
+                    continue;
                 }
 
                 if (line.startsWith("0,0")) {
@@ -198,11 +250,13 @@ fs.readdir('./maps', async (err, files) => {
                     newZip.addFile(`${pick}${file_format}`, backgroundFile.getData());
                     s[2] = `"${pick}${file_format}"`;
                     lines[i] = s.join(",");
-                    break
+                    break;
                 }
             }
 
-            if (!musicFound) continue;
+            if (!musicFound) {
+                continue;
+            }
 
             lines = lines.join("\n");
             
@@ -219,7 +273,8 @@ fs.readdir('./maps', async (err, files) => {
                     mods = "HR";
                     break;
                 case "hd":
-                    mods = "HD"
+                    mods = "HD";
+                    break;
             }
 
             const map = new osudroid.Parser().parse(osuFile.getData().toString("utf8")).map;
@@ -255,7 +310,8 @@ fs.readdir('./maps', async (err, files) => {
             console.log("Creating databaseEntry2.json");
             fs.writeFile('databaseEntry2.json', JSON.stringify(map_length_entries, null, "\t"), function(err) {
                 if (err) throw err;
-                console.log("Done")
+                console.log("Done");
+                process.exit(0);
             })
         })
     })
