@@ -12,7 +12,9 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-if (!osuapikey) return console.log("Please enter an osu! API key in credentials.json!");
+if (!osuapikey) {
+    return console.log("Please enter an osu! API key in credentials.json!");
+}
 
 /**
  * Fetches beatmap from osu! API.
@@ -33,7 +35,7 @@ function fetchBeatmap(beatmap_id) {
             res.on("end", () => {
                 let obj;
                 try {
-                    obj = JSON.parse(content)
+                    obj = JSON.parse(content);
                 } catch (e) {
                     console.log("Error fetching beatmap ID", beatmap_id);
                     return resolve(null);
@@ -41,9 +43,9 @@ function fetchBeatmap(beatmap_id) {
                 if (!obj || !obj[0]) return resolve(null);
                 if (obj[0].mode != 0) {
                     console.warn("Beatmap ID", beatmap_id, "is not an osu!standard map. Ignoring beatmap");
-                    return resolve(null)
+                    return resolve(null);
                 }
-                resolve(obj[0])
+                resolve(obj[0]);
             })
         })
     })
@@ -57,11 +59,11 @@ function fetchBeatmap(beatmap_id) {
  */
 function notifyMapInsert(beatmapset_id) {
     return new Promise(resolve => {
-        rl.question(`Mapset not found for beatmapset ID ${beatmapset_id}. Please insert the corresponding beatmap set to maps folder, then press Enter (note: the mapset must have the beatmapset ID in front of its name, for example: "${beatmapset_id}.osz" (without quotation marks)).`, answer => {
+        rl.question(`Mapset not found for beatmapset ID ${beatmapset_id}. Please insert the corresponding beatmap set to maps folder, then press Enter (note: the mapset must have the beatmapset ID in front of its name, for example: "${beatmapset_id}.osz" (without quotation marks)).\nYou can use this link to download the map from osu! website: https://osu.ppy.sh/beatmapsets/${beatmapset_id}`, answer => {
             fs.readdir('./maps', (err, files) => {
                 if (err) {
                     console.warn("Error opening maps directory:\n\n" + err);
-                    return resolve(notifyMapInsert(beatmapset_id))
+                    return resolve(notifyMapInsert(beatmapset_id));
                 }
                 const file_list = files.filter(f => f.endsWith(".osz"));
                 for (const file of file_list) {
@@ -76,9 +78,9 @@ function notifyMapInsert(beatmapset_id) {
                     return resolve(file);
                 }
                 resolve(notifyMapInsert(beatmapset_id));
-            })
-        })
-    })
+            });
+        });
+    });
 }
 
 /**
@@ -90,7 +92,7 @@ function notifyMapInsert(beatmapset_id) {
 function downloadBeatmap(beatmapset_id) {
     return new Promise(resolve => {
         let file_name = `${beatmapset_id}.osz`;
-        const options = new URL(`https://bloodcat.com/osu/_data/beatmaps/${beatmapset_id}.osz`);
+        const options = new URL(`https://bloodcat.com/osu/m/${beatmapset_id}`);
         const data_array = [];
 
         https.get(options, res => {
@@ -108,9 +110,9 @@ function downloadBeatmap(beatmapset_id) {
                         resolve(file_name);
                     })
                 }
-            })
-        }).end()
-    })
+            });
+        }).end();
+    });
 }
 
 fs.readdir('./maps', async (err, files) => {
