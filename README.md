@@ -56,14 +56,14 @@ An example of correct JSON file format:
     },
     "format": {
         "nm": [
-            "https://osu.ppy.sh/beatmapsets/310499#osu/771496",
-            1683700,
-            "https://osu.ppy.sh/beatmapsets/1011573#osu/2117268"
+            "https://osu.ppy.sh/beatmapsets/310499#osu/771496", // this will be NM1
+            1683700, // this will be NM2
+            "https://osu.ppy.sh/beatmapsets/1011573#osu/2117268" // and so on
         ],
         "hd": [
-            73699,
-            "https://osu.ppy.sh/beatmapsets/36849#osu/119375",
-            "https://osu.ppy.sh/beatmapsets/192416#osu/457590"
+            73699, // HD1
+            "https://osu.ppy.sh/beatmapsets/36849#osu/119375", // HD2
+            "https://osu.ppy.sh/beatmapsets/192416#osu/457590" // etc.
         ],
         "hr": [
             "https://osu.ppy.sh/beatmapsets/609189#osu/1332900",
