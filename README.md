@@ -15,10 +15,10 @@ A NodeJS script that can create mapsets for osu!droid tournaments.
 1. Download the script and install dependencies by running `npm install` in your command line.
 2. Delete placeholder files from both maps and output folder.
 3. Open credentials.json and paste in your osu! API key into the `api_key` field.
-4. (Optional) Place `.osz` files into the maps folder. Note the name of the files. Each `.osz` files must contain its beatmapset ID in the beginning of its file name. If this step is skipped, each map will be downloaded from Bloodcat.
+4. (Optional) Place `.osz` files into the maps folder. Note the name of the files. Each `.osz` files must contain its beatmapset ID in the beginning of its file name. If this step is skipped, each map will be downloaded from Sayobo.
 5. Open config.json and modify the fields as you like. For explanation, see the category below.
 6. Run `npm run start` or `node main.js`.
-7. The mapset is ready to use and can be found inside the output folder. Two `databaseEntry.json` files will be created if you want to enter the mapset for [Alice](https://github.com/Rian8337/Alice). Please ask `@Rian8337#6898` in Discord if you want to do so.
+7. The mapset is ready to use and can be found inside the output folder. Two `databaseEntry.json` files will be created if you want to enter the mapset for [Alice](https://github.com/Rian8337/Alice). Please ask `@Rian8337#0001` in Discord if you want to do so.
 
 ### config.json configuration
 This section covers the configuration guide of config.json. If you are not using a code editor, you can use JSON linters to validate your JSON file such as [this](https://jsonlint.com/) website.
