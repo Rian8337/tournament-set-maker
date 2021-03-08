@@ -150,9 +150,9 @@ class Parser {
      * @private
      */
     _property() {
-        let s = this.current_line.split(":", 2);
+        let s = this.current_line.split(":");
         s[0] = this._setpos(s[0]);
-        s[1] = this._setpos(s[1]);
+        s[1] = this._setpos(s.slice(1).join(":"));
         return s;
     }
 
