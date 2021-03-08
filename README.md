@@ -8,7 +8,7 @@ A NodeJS script that can create mapsets for osu!droid tournaments.
 
 ### Requirements
 - [NodeJS](https://nodejs.org) (any version would do, however v12 or above (LTS) is recommended)
-- osu! API key (if you don't have one, get it from [here](https://osu.ppy.sh/p/api/))
+- osu! API key (if you don't have one, get it from [here](https://old.ppy.sh/p/api/))
 
 ### Guide
 1. Download the script and install dependencies by running `npm install` in your command line.
