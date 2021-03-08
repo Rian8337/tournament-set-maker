@@ -6,7 +6,8 @@
   "dependencies": {
     "adm-zip": "^0.4.14",
     "crypto-js": "^4.0.0",
-    "osu-droid": "file:modules/osu!droid"
+    "osu-droid": "file:modules/osu!droid",
+    "request": "^2.88.2"
   },
   "devDependencies": {},
   "scripts": {
