@@ -1,3 +1,4 @@
+const fs = require('fs');
 const request = require('request');
 const readline = require('readline');
 const osuapikey = require('./credentials.json').api_key;
