@@ -8,7 +8,7 @@ let config = require('./config.json');
  * @param {string} currentConfig The current configuration.
  * @returns {Promise<void>}
  */
- function reloadAndSaveNewConfig(currentConfig) {
+function reloadAndSaveNewConfig(currentConfig) {
     return new Promise(async resolve => {
         await fs.promises.writeFile('config.json', JSON.stringify(currentConfig, null, "\t"));
         config = require('./config.json');
@@ -217,11 +217,13 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
         }
         console.log();
         console.log("Beatmap Information:");
+
+        const tableOutput = [];
         for (const mode in config.format) {
             const beatmapCount = beatmapCounts.find(v => v.mode === mode).count;
             const specialPicksAmount = config.special_picks[mode];
             let specialCountIndex = 0;
-            
+
             for (let i = 0; i < beatmapCount; ++i) {
                 let pick = mode.toUpperCase();
                 if (beatmapCount > 1) {
@@ -242,9 +244,17 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
                     const a = beatmapID.split("/");
                     beatmapID = parseInt(a[a.length - 1]);
                 }
-                console.log(`${pick}: Beatmap ID ${beatmapID} | Score Portion ${(entry.scorePortion.combo * 100).toFixed(2)}%/${(entry.scorePortion.accuracy * 100).toFixed(2)}%`);
+
+                tableOutput.push({
+                    "Pick": pick,
+                    "Beatmap ID": beatmapID,
+                    "Combo Score Portion (%)": parseFloat((entry.scorePortion.combo * 100).toFixed(2)),
+                    "Accuracy Score Portion (%)": parseFloat((entry.scorePortion.accuracy * 100).toFixed(2))
+                });
             }
         }
+
+        console.table(tableOutput);
 
         console.log();
         let isRedoInput;
