@@ -14,7 +14,7 @@ const rl = readline.createInterface({
  * @param {number} beatmap_id The beatmap ID. 
  * @returns {Promise<Object>} An object containing beatmap information.
  */
- function fetchBeatmap(beatmap_id) {
+function fetchBeatmap(beatmap_id) {
     return new Promise(resolve => {
         request(`https://osu.ppy.sh/api/get_beatmaps?k=${osuapikey}&b=${beatmap_id}`, (err, res, data) => {
             if (res.statusCode !== 200) {
@@ -39,7 +39,7 @@ const rl = readline.createInterface({
  * @param {string} question The text to view to the user.
  * @returns {Promise<string>} The input of the user.
  */
- function askInput(question) {
+function askInput(question) {
     return new Promise(resolve => {
         rl.question(question, answer => {
             resolve(answer);
