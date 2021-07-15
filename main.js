@@ -22,6 +22,7 @@ fs.readdir('./maps', async (err, files) => {
 
     const map_entries = {
         poolid: config.poolid,
+        forcePR: config.forcePR,
         map: []
     };
 
