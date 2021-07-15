@@ -19,14 +19,15 @@ function reloadAndSaveNewConfig(currentConfig) {
 /**
  * Modifies the configuration file.
  * 
- * @param {boolean} askForPoolID Whether or not to ask for pool ID.
- * @param {boolean} askForArtist Whether or not to ask for set artist.
- * @param {boolean} askForTitle Whether or not to ask for set title.
- * @param {boolean} askForSpecial Whether or not to ask for special pick count.
- * @param {boolean} askForBeatmaps Whether or not to ask for beatmaps.
+ * @param {boolean} askForPoolID Whether to ask for pool ID.
+ * @param {boolean} askForArtist Whether to ask for set artist.
+ * @param {boolean} askForTitle Whether to ask for set title.
+ * @param {boolean} askForForcePR Whether to ask for force PR option.
+ * @param {boolean} askForSpecial Whether to ask for special pick count.
+ * @param {boolean} askForBeatmaps Whether to ask for beatmaps.
  * @returns {Promise<void>}
  */
-function configure(askForPoolID = false, askForArtist = false, askForTitle = false, askForSpecial = false, askForBeatmaps = false) {
+function configure(askForPoolID = false, askForArtist = false, askForTitle = false, askForForcePR = false, askForSpecial = false, askForBeatmaps = false) {
     return new Promise(async resolve => {
         // Load current config
         if (askForPoolID) {
@@ -58,6 +59,19 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
                     console.log();
                     break;
                 }
+            }
+        }
+
+        if (config.forcePR === null || askForForcePR) {
+            while (true) {
+                const input = await askInput("Do you want to force the PR mod in this set? This will only be enforceed if you use bot. [Y/N, case insensitive]");
+                if (input !== "Y" && input !== "N") {
+                    console.log("Invalid input");
+                    continue;
+                }
+                config.forcePR = input === "Y";
+                console.log();
+                break;
             }
         }
 
@@ -210,6 +224,7 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
         console.log("Artist: " + config.artist);
         console.log("Title: " + config.title);
         console.log("Final Set Name: " + config.artist + " - " + config.title);
+        console.log("Force PR" + config.forcePR);
         console.log();
         console.log("Special picks amount:");
         for (const mode in config.special_picks) {
@@ -271,8 +286,8 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
         if (isRedoInput) {
             console.log();
             while (true) {
-                const validInputs = ["pool id", "artist", "title", "special pick count", "beatmaps"];
-                const input = (await askInput("Choose which section that you want to edit. Valid inputs are 'pool id', 'artist', 'title', 'special pick count', and 'beatmaps' (all case insensitive).\n")).toLowerCase();
+                const validInputs = ["pool id", "artist", "title", "force pr", "special pick count", "beatmaps"];
+                const input = (await askInput(`Choose which section that you want to edit. Valid inputs are ${validInputs.map(v => `'${v}'`).join(", ")} (all case insensitive).\n`)).toLowerCase();
                 if (validInputs.includes(input)) {
                     console.log();
                     return resolve(
@@ -280,6 +295,7 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
                             input === 'pool id',
                             input === 'artist',
                             input === 'title',
+                            input === 'force pr',
                             input === 'special pick count',
                             input === 'beatmaps'
                         )

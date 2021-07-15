@@ -2,6 +2,7 @@
     "poolid": "",
     "artist": "",
     "title": "",
+	"forcePR": null,
     "special_picks": {
         "nm": 0,
         "hd": 0,
