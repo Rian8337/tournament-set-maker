@@ -160,7 +160,7 @@ fs.readdir('./maps', async (err, files) => {
             lines = lines.join("\n");
             
             const md5 = MD5(lines).toString();
-            const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${map_object.artist} - ${map_object.title} [${map_object.version}]].osu`.replace(/\//g, "");
+            const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${map_object.artist} - ${map_object.title} [${map_object.version}]].osu`.replace(/[/\\?%*:|"<>]/g, "");
 
             let mods = "NF";
             
