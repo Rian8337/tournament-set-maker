@@ -224,7 +224,7 @@ function configure(askForPoolID = false, askForArtist = false, askForTitle = fal
         console.log("Artist: " + config.artist);
         console.log("Title: " + config.title);
         console.log("Final Set Name: " + config.artist + " - " + config.title);
-        console.log("Force PR" + config.forcePR);
+        console.log("Force PR: " + config.forcePR);
         console.log();
         console.log("Special picks amount:");
         for (const mode in config.special_picks) {

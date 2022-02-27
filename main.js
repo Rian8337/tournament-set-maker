@@ -26,11 +26,6 @@ fs.readdir('./maps', async (err, files) => {
         map: []
     };
 
-    const map_length_entries = {
-        poolid: config.poolid,
-        map: []
-    };
-
     const map_artist = config.artist;
     const map_title = config.title;
     const formats = config.format;
@@ -158,12 +153,12 @@ fs.readdir('./maps', async (err, files) => {
             }
 
             lines = lines.join("\n");
-            
+
             const md5 = MD5(lines).toString();
             const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${map_object.artist} - ${map_object.title} [${map_object.version}]].osu`.replace(/[/\\?%*:|"<>]/g, "");
 
-            let mods = "NF";
-            
+            let mods = "";
+
             switch (id) {
                 case "dt":
                     mods += "DT";
@@ -180,21 +175,18 @@ fs.readdir('./maps', async (err, files) => {
             const mapinfo = new osudroid.MapInfo(map);
             const max_score = mapinfo.max_score(mods);
 
-            const map_entry = [
-                id,
-                file_name.substring(0, file_name.length - 4).replace(/['_]/g, " "),
-                max_score,
-                md5,
-                beatmap.scorePortion.combo,
-                beatmap.scorePortion.accuracy
-            ];
+            const map_entry = {
+                pick: pick,
+                mode: id,
+                name: file_name.substring(0, file_name.length - 4).replace(/['_]/g, " "),
+                maxScore: max_score,
+                hash: md5,
+                duration: parseInt(map_object.total_length),
+                scorePortion: beatmap.scorePortion.combo,
+                accuracyPortion: beatmap.scorePortion.accuracy,
+            };
             map_entries.map.push(map_entry);
 
-            const length_entry = [
-                pick,
-                parseInt(map_object.total_length)
-            ];
-            map_length_entries.map.push(length_entry);
             newZip.addFile(file_name, Buffer.from(lines, 'utf8'));
         }
     }
@@ -205,15 +197,11 @@ fs.readdir('./maps', async (err, files) => {
     newZip.writeZip(set_directory, function(err) {
         if (err) throw err;
         console.log("Tournament mapset saved");
-        console.log("Creating databaseEntry1.json");
-        fs.writeFile('databaseEntry1.json', JSON.stringify(map_entries, null, "\t"), function(err) {
+        console.log("Creating databaseEntry.json");
+        fs.writeFile('databaseEntry.json', JSON.stringify(map_entries, null, "\t"), function(err) {
             if (err) throw err;
-            console.log("Creating databaseEntry2.json");
-            fs.writeFile('databaseEntry2.json', JSON.stringify(map_length_entries, null, "\t"), function(err) {
-                if (err) throw err;
-                console.log("Done");
-                process.exit(0);
-            });
+            console.log("Done");
+            process.exit(0);
         });
     });
 });
