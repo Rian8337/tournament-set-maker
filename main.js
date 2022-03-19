@@ -1,9 +1,9 @@
 const AdmZip = require('adm-zip');
 const osuapikey = require('./credentials.json').api_key;
-const { Parser, MapStats, ModUtil } = require("@rian8337/osu-base");
+const { Parser, MapInfo, MapStats, ModUtil } = require("@rian8337/osu-base");
 const fs = require('fs');
 const { MD5 } = require('crypto-js');
-const { downloadBeatmap, fetchBeatmap } = require('./util');
+const { downloadBeatmap } = require('./util');
 const configure = require('./configManager');
 
 if (!osuapikey) {
@@ -57,16 +57,13 @@ fs.readdir('./maps', async (err, files) => {
                 }
             }
 
-            const map_object = await fetchBeatmap(beatmapID);
-            if (!map_object) {
+            const beatmapInfo = await MapInfo.getInformation({ beatmapID, file: false });
+            if (!beatmapInfo) {
                 console.warn(`Couldn't fetch beatmap for beatmap ID ${beatmapID}. Ignoring beatmap entry`);
                 continue;
             }
-            const beatmapset_id = map_object.beatmapset_id;
-            const artist = map_object.artist;
-            const title = map_object.title;
-            const creator = map_object.creator;
-            const version = map_object.version;
+            const beatmapset_id = beatmapInfo.beatmapsetID;
+            const { artist, title, creator, version } = beatmapInfo;
             ++count;
 
             let pick = id.toUpperCase();
@@ -158,7 +155,7 @@ fs.readdir('./maps', async (err, files) => {
             lines = lines.join("\n");
 
             const md5 = MD5(lines).toString();
-            const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${map_object.artist} - ${map_object.title} [${map_object.version}]].osu`.replace(/[/\\?%*:|"<>]/g, "");
+            const file_name = `${map_artist} - ${map_title} (${creator}) [(${pick}) ${artist} - ${title} [${version}]].osu`.replace(/[/\\?%*:|"<>]/g, "");
 
             let mods = "";
 
@@ -182,7 +179,7 @@ fs.readdir('./maps', async (err, files) => {
                     new MapStats({ mods: ModUtil.pcStringToMods(mods) })
                 ),
                 hash: md5,
-                duration: parseInt(map_object.total_length),
+                duration: parseInt(beatmapInfo.total_length),
                 scorePortion: beatmap.scorePortion.combo,
                 accuracyPortion: beatmap.scorePortion.accuracy,
             };

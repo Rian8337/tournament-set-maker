@@ -9,31 +9,6 @@ const rl = readline.createInterface({
 });
 
 /**
- * Fetches beatmap from osu! API.
- * 
- * @param {number} beatmap_id The beatmap ID. 
- * @returns {Promise<Object>} An object containing beatmap information.
- */
-function fetchBeatmap(beatmap_id) {
-    return new Promise(resolve => {
-        request(`https://osu.ppy.sh/api/get_beatmaps?k=${osuapikey}&b=${beatmap_id}`, (err, res, data) => {
-            if (res.statusCode !== 200) {
-                return resolve(null);
-            }
-            const obj = JSON.parse(data);
-            if (!obj || !obj[0]) {
-                return resolve(null);
-            }
-            if (obj[0].mode != 0) {
-                console.warn("Beatmap ID", beatmap_id, "is not an osu!standard map. Ignoring beatmap");
-                return resolve(null);
-            }
-            resolve(obj[0]);
-        });
-    });
-}
-
-/**
  * Asks for an input from the user.
  * 
  * @param {string} question The text to view to the user.
@@ -108,7 +83,6 @@ function downloadBeatmap(beatmapset_id) {
 }
 
 module.exports = {
-    fetchBeatmap,
     askInput,
     notifyMapInsert,
     downloadBeatmap
