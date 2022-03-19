@@ -7,7 +7,8 @@ const { downloadBeatmap, fetchBeatmap } = require('./util');
 const configure = require('./configManager');
 
 if (!osuapikey) {
-    return console.log("Please enter an osu! API key in credentials.json!");
+    console.log("Please enter an osu! API key in credentials.json!");
+    process.exit();
 }
 
 process.env.OSU_API_KEY = osuapikey;
