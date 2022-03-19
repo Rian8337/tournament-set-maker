@@ -1,6 +1,6 @@
 const AdmZip = require('adm-zip');
 const osuapikey = require('./credentials.json').api_key;
-const osudroid = require('osu-droid');
+const { Parser, MapStats, ModUtil } = require("@rian8337/osu-base");
 const fs = require('fs');
 const { MD5 } = require('crypto-js');
 const { downloadBeatmap, fetchBeatmap } = require('./util');
@@ -9,6 +9,8 @@ const configure = require('./configManager');
 if (!osuapikey) {
     return console.log("Please enter an osu! API key in credentials.json!");
 }
+
+process.env.OSU_API_KEY = osuapikey;
 
 fs.readdir('./maps', async (err, files) => {
     if (err) throw err;
@@ -88,7 +90,7 @@ fs.readdir('./maps', async (err, files) => {
             }
             const zip = new AdmZip(`./maps/${file}`);
             const entries = zip.getEntries();
-            const osuFile = entries.find(entry => new osudroid.Parser().parse(entry.getData().toString("utf8")).map.version === version);
+            const osuFile = entries.find(entry => new Parser().parse(entry.getData().toString("utf8")).map.version === version);
             if (!osuFile) {
                 console.warn(`Couldn't find beatmap file for pick ${pick}: ${version}`);
                 continue;
@@ -171,15 +173,13 @@ fs.readdir('./maps', async (err, files) => {
                     break;
             }
 
-            const map = new osudroid.Parser().parse(osuFile.getData().toString("utf8")).map;
-            const mapinfo = new osudroid.MapInfo(map);
-            const max_score = mapinfo.max_score(mods);
-
             const map_entry = {
                 pick: pick,
                 mode: id,
                 name: file_name.substring(0, file_name.length - 4).replace(/['_]/g, " "),
-                maxScore: max_score,
+                maxScore: new Parser().parse(osuFile.getData().toString("utf8")).map.maxDroidScore(
+                    new MapStats({ mods: ModUtil.pcStringToMods(mods) })
+                ),
                 hash: md5,
                 duration: parseInt(map_object.total_length),
                 scorePortion: beatmap.scorePortion.combo,
