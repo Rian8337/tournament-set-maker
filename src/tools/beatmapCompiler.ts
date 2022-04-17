@@ -134,6 +134,7 @@ export async function compileBeatmap(): Promise<void> {
             scorePortion: beatmap.comboScorePortion,
             requiredMods: beatmap.requiredMods.map((m) => m.acronym).join(""),
             allowedMods: beatmap.allowedMods.map((m) => m.acronym).join(""),
+            minPlayers: beatmap.minPlayers,
         });
     }
 

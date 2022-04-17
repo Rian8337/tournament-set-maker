@@ -1,3 +1,5 @@
+import { MinPlayers } from "../types/MinPlayers";
+
 /**
  * Represents a database entry's beatmap item.
  */
@@ -41,4 +43,9 @@ export interface DatabaseEntryBeatmap {
      * The combination of mods that can be used when playing this beatmap.
      */
     readonly allowedMods: string;
+
+    /**
+    * The minimum amount of players playing this pick with required mods.
+    */
+    readonly minPlayers: MinPlayers;
 }

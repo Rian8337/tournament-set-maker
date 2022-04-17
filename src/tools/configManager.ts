@@ -26,6 +26,7 @@ import { Config } from "../interfaces/Config";
 import { FullBeatmap } from "../interfaces/FullBeatmap";
 import { ConfigBeatmap } from "../interfaces/ConfigBeatmap";
 import { pickBeatmaps } from "./beatmapPicker";
+import { assignGlobalMinimumPlayers, assignMinimumPlayers } from "../handlers/beatmapMinimumPlayersHandler";
 
 /**
  * Initializes and/or modifies configuration.
@@ -47,10 +48,10 @@ export async function initConfiguration(): Promise<void> {
  */
 export async function saveConfig(currentConfig?: Config): Promise<void> {
     const newConfig: Config = {
-        poolId: currentConfig?.poolId ?? config.poolId,
-        artist: currentConfig?.artist ?? config.artist,
-        title: currentConfig?.title ?? config.title,
-        beatmaps: currentConfig?.beatmaps ?? config.beatmaps,
+        poolId: currentConfig?.poolId ?? (<Config>config).poolId,
+        artist: currentConfig?.artist ?? (<Config>config).artist,
+        title: currentConfig?.title ?? (<Config>config).title,
+        beatmaps: currentConfig?.beatmaps ?? (<Config>config).beatmaps,
     };
 
     await writeFile(
@@ -132,6 +133,7 @@ async function insertBeatmap(beatmap: FullBeatmap): Promise<void> {
         comboScorePortion: 0.4,
         allowedMods: [],
         requiredMods: [],
+        minPlayers: "ALL",
     };
 
     usedBeatmaps.set(beatmapData.hash, beatmapData);
@@ -148,6 +150,7 @@ async function insertBeatmap(beatmap: FullBeatmap): Promise<void> {
             comboScorePortion: 0.4,
             allowedMods: "",
             requiredMods: "",
+            minPlayers: "ALL",
         });
 
         await saveConfig();
@@ -166,6 +169,7 @@ async function insertConfigBeatmap(
         comboScorePortion: configBeatmap.comboScorePortion,
         allowedMods: ModUtil.pcStringToMods(configBeatmap.allowedMods),
         requiredMods: ModUtil.pcStringToMods(configBeatmap.requiredMods),
+        minPlayers: configBeatmap.minPlayers,
     };
 
     usedBeatmaps.set(beatmapData.hash, beatmapData);
@@ -329,24 +333,26 @@ async function resetConfiguration(): Promise<void> {
 
 async function finalConfiguration(): Promise<void> {
     const choices = [
-        "Enter tournament set pool ID",
-        "Enter tournament set artist",
-        "Enter tournament set title",
-        "Reload beatmapsets",
-        "Download a beatmapset from Sayobot",
-        "Insert a beatmap to the tournament set",
-        "Remove a beatmap from the tournament set",
-        "Remove all beatmaps from the tournament set",
-        "Assign pick IDs for every beatmap",
-        "Assign a pick ID for a beatmap",
-        "Assign a global combo score portion (will apply to every currently inserted beatmap)",
-        "Assign a combo score portion to a beatmap",
-        "Assign globally required mods (will apply to every currently inserted beatmap)",
-        "Assign required mods for a beatmap",
-        "Assign globally allowed mods (will apply to every currently inserted beatmap)",
-        "Assign allowed mods for a beatmap",
-        "Reset configuration",
-        "Exit from menu and generate tournament set",
+        /* 1  */ "Enter tournament set pool ID",
+        /* 2  */ "Enter tournament set artist",
+        /* 3  */ "Enter tournament set title",
+        /* 4  */ "Reload beatmapsets",
+        /* 5  */ "Download a beatmapset from Sayobot",
+        /* 6  */ "Insert a beatmap to the tournament set",
+        /* 7  */ "Remove a beatmap from the tournament set",
+        /* 8  */ "Remove all beatmaps from the tournament set",
+        /* 9  */ "Assign pick IDs for every beatmap",
+        /* 10 */ "Assign a pick ID to a beatmap",
+        /* 11 */ "Assign a global combo score portion (will apply to every currently inserted beatmap)",
+        /* 12 */ "Assign a combo score portion to a beatmap",
+        /* 13 */ "Assign globally required mods (will apply to every currently inserted beatmap)",
+        /* 14 */ "Assign required mods to a beatmap",
+        /* 15 */ "Assign globally allowed mods (will apply to every currently inserted beatmap)",
+        /* 16 */ "Assign allowed mods to a beatmap",
+        /* 17 */ "Assign a global amount of minimum players (will apply to every currently inserted beatmap)",
+        /* 18 */ "Assign an amount of minimum players to a beatmap",
+        /* 19 */ "Reset configuration",
+        /* 20 */ "Exit from menu and generate tournament set",
     ];
 
     const allowedInputs = Utils.initializeArray(choices.length, 1).map((v, i) =>
@@ -386,18 +392,15 @@ async function finalConfiguration(): Promise<void> {
                 return {
                     "Pick ID": v.pickId,
                     "Beatmap Name": `${v.beatmap.artist} - ${v.beatmap.title} (${v.beatmap.creator}) [${v.beatmap.version}]`,
-                    "Combo Score Portion (%)": MathUtils.round(
+                    "Combo Portion (%)": MathUtils.round(
                         v.comboScorePortion * 100,
-                        2
-                    ),
-                    "Accuracy Score Portion (%)": MathUtils.round(
-                        (1 - v.comboScorePortion) * 100,
                         2
                     ),
                     "Required Mods":
                         v.requiredMods.map((m) => m.acronym).join("") || "None",
                     "Allowed Mods":
                         v.allowedMods.map((m) => m.acronym).join("") || "None",
+                    "Minimum Players": v.minPlayers,
                 };
             })
         );
@@ -405,7 +408,7 @@ async function finalConfiguration(): Promise<void> {
         const input = parseInt(
             await getInput(
                 "Choose the action that you want to do.\n" +
-                    choices.map((v, i) => `${i + 1}. ${v}`).join("\n"),
+                choices.map((v, i) => `${i + 1}. ${v}`).join("\n"),
                 {
                     allowBlank: false,
                     caseSensitive: false,
@@ -464,9 +467,15 @@ async function finalConfiguration(): Promise<void> {
                 await assignAllowedMods();
                 break;
             case 17:
-                await resetConfiguration();
+                await assignGlobalMinimumPlayers();
                 break;
             case 18:
+                await assignMinimumPlayers();
+                break;
+            case 19:
+                await resetConfiguration();
+                break;
+            case 20:
                 if (usedBeatmaps.some((v) => !v.pickId)) {
                     console.log(
                         "Some beatmaps have not been assigned a pick ID yet! Please assign a pick ID to every beatmap"

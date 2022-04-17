@@ -24,4 +24,9 @@ export interface UsedBeatmap extends FullBeatmap {
      * The mods that are allowed to be picked while playing this beatmap.
      */
     allowedMods: Mod[];
+
+    /**
+     * The minimum amount of players playing this pick with required mods.
+     */
+    minPlayers: number | "ALL";
 }
