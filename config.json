@@ -1,28 +1,6 @@
 {
-    "poolid": "",
-    "artist": "",
-    "title": "",
-	"forcePR": null,
-    "special_picks": {
-        "nm": 0,
-        "hd": 0,
-        "hr": 0,
-        "dt": 0,
-        "fm": 0,
-        "tb": 0
-    },
-    "format": {
-        "nm": [
-        ],
-        "hd": [
-        ],
-        "hr": [
-        ],
-        "dt": [
-        ],
-        "fm": [
-        ],
-        "tb": [
-        ]
-    }
+	"poolId": "",
+	"artist": "",
+	"title": "",
+	"beatmaps": []
 }
