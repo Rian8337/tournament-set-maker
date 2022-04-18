@@ -237,13 +237,13 @@ async function removeBeatmap(beatmap: UsedBeatmap): Promise<void> {
     );
 }
 
-async function downloadBeatmapset(): Promise<void> {
-    let beatmapsetId = Number.NaN;
+async function downloadBeatmapsets(): Promise<void> {
+    const beatmapsetIds = [];
 
-    while (Number.isNaN(beatmapsetId)) {
+    while (true) {
         const input = (
             await getInput(
-                'Enter the beatmapset ID or link of the beatmap that you want to download. Enter "q" to exit from this menu.',
+                'Enter beatmapset IDs or link of beatmaps that you want to download, separated by space. Enter "q" to exit from this menu.',
                 { allowBlank: false, caseSensitive: false }
             )
         ).toLowerCase();
@@ -252,39 +252,49 @@ async function downloadBeatmapset(): Promise<void> {
             break;
         }
 
-        beatmapsetId = parseInt(input);
+        const strs = input.split(/\s+/g);
 
-        if (Number.isNaN(beatmapsetId)) {
-            const split = input.split("/");
+        for (const str of strs) {
+            let beatmapsetId = parseInt(input);
 
-            const index =
-                split.indexOf("beatmapsets") + 1 || split.indexOf("s") + 1;
+            if (Number.isNaN(beatmapsetId)) {
+                const split = input.split("/");
 
-            const id = parseInt(split[index]);
+                const index =
+                    split.indexOf("beatmapsets") + 1 || split.indexOf("s") + 1;
 
-            if (!Number.isNaN(id)) {
-                beatmapsetId = id;
+                const id = parseInt(split[index]);
+
+                if (!Number.isNaN(id)) {
+                    beatmapsetId = id;
+                }
             }
-        }
 
-        if (Number.isNaN(beatmapsetId)) {
-            console.log("Invalid beatmapset ID");
+            if (Number.isNaN(beatmapsetId)) {
+                console.log(`Invalid input: ${str}. Ignoring`);
+            }
+
+            beatmapsetIds.push(beatmapsetId);
         }
     }
 
-    if (Number.isNaN(beatmapsetId)) {
+    if (beatmapsetIds.length === 0) {
         return;
     }
 
     const confirmation = (
         await getInput(
-            `Are you sure you want to download beatmapset ${beatmapsetId}?`,
+            `Are you sure you want to download these beatmapset(s)?\n${beatmapsetIds
+                .map((v) => `https://osu.ppy.sh/beatmapsets/${v}`)
+                .join("\n")}`,
             { caseSensitive: false, allowBlank: false, validInputs: ["Y", "N"] }
         )
     ).toLowerCase();
 
     if (confirmation === "y") {
-        await downloadBeatmap(beatmapsetId);
+        for (const beatmapsetId of beatmapsetIds) {
+            await downloadBeatmap(beatmapsetId);
+        }
     }
 }
 
@@ -306,7 +316,7 @@ async function forceInsertOrDownloadBeatmapset(): Promise<void> {
                 await loadBeatmapsets();
                 break;
             case 2:
-                await downloadBeatmapset();
+                await downloadBeatmapsets();
                 break;
         }
     }
@@ -340,7 +350,7 @@ async function finalConfiguration(): Promise<void> {
         /* 2  */ "Enter tournament set artist",
         /* 3  */ "Enter tournament set title",
         /* 4  */ "Reload beatmapsets",
-        /* 5  */ "Download a beatmapset from Sayobot",
+        /* 5  */ "Download beatmapset(s) from Sayobot",
         /* 6  */ "Insert a beatmap to the tournament set",
         /* 7  */ "Remove a beatmap from the tournament set",
         /* 8  */ "Remove all beatmaps from the tournament set",
@@ -434,7 +444,7 @@ async function finalConfiguration(): Promise<void> {
                 await loadBeatmapsets();
                 break;
             case 5:
-                await downloadBeatmapset();
+                await downloadBeatmapsets();
                 break;
             case 6:
                 await insertBeatmaps();
