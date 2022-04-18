@@ -20,9 +20,14 @@ export interface DatabaseEntryBeatmap {
     readonly maxScore: number;
 
     /**
-     * The MD5 hash of this beatmap.
+     * The MD5 hash of the modified version of this beatmap.
      */
     readonly hash: string;
+
+    /**
+     * The original MD5 hash of this beatmap.
+     */
+    readonly originalHash: string;
 
     /**
      * The duration of this beatmap until the end of the last object, in seconds.
@@ -45,7 +50,7 @@ export interface DatabaseEntryBeatmap {
     readonly allowedMods: string;
 
     /**
-    * The minimum amount of players playing this pick with required mods.
-    */
+     * The minimum amount of players playing this pick with required mods.
+     */
     readonly minPlayers: MinPlayers;
 }

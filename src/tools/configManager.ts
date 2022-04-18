@@ -26,7 +26,10 @@ import { Config } from "../interfaces/Config";
 import { FullBeatmap } from "../interfaces/FullBeatmap";
 import { ConfigBeatmap } from "../interfaces/ConfigBeatmap";
 import { pickBeatmaps } from "./beatmapPicker";
-import { assignGlobalMinimumPlayers, assignMinimumPlayers } from "../handlers/beatmapMinimumPlayersHandler";
+import {
+    assignGlobalMinimumPlayers,
+    assignMinimumPlayers,
+} from "../handlers/beatmapMinimumPlayersHandler";
 
 /**
  * Initializes and/or modifies configuration.
@@ -408,7 +411,7 @@ async function finalConfiguration(): Promise<void> {
         const input = parseInt(
             await getInput(
                 "Choose the action that you want to do.\n" +
-                choices.map((v, i) => `${i + 1}. ${v}`).join("\n"),
+                    choices.map((v, i) => `${i + 1}. ${v}`).join("\n"),
                 {
                     allowBlank: false,
                     caseSensitive: false,

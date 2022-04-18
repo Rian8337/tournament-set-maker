@@ -127,6 +127,7 @@ export async function compileBeatmap(): Promise<void> {
                 new MapStats({ mods: beatmap.requiredMods })
             ),
             hash: MD5(finalBeatmapFile).toString(),
+            originalHash: beatmap.hash,
             duration:
                 (finalBeatmap.objects.at(-1)!.endTime -
                     Math.min(0, finalBeatmap.objects.at(0)!.startTime)) /
