@@ -153,7 +153,7 @@ async function doPagingAction<T extends FullBeatmap>(
 
         const acceptedInputs = [];
 
-        if (options.index < maxItemsPerPage) {
+        if (options.index > maxItemsPerPage) {
             acceptedInputs.push("pa");
         }
 
@@ -286,9 +286,11 @@ async function doMultiplePickAction<T extends FullBeatmap>(
                 (m) =>
                     m <= 0 ||
                     m >
-                        options.index -
-                            maxItemsPerPage *
-                                Math.floor(options.index / maxItemsPerPage)
+                        (options.index % maxItemsPerPage === 0
+                            ? maxItemsPerPage
+                            : options.index -
+                              maxItemsPerPage *
+                                  Math.floor(options.index / maxItemsPerPage))
             )
         ) {
             console.log("Some entered numbers are not valid");
@@ -299,11 +301,11 @@ async function doMultiplePickAction<T extends FullBeatmap>(
         }
 
         for (const pickedIndex of pickedBeatmapIndexes) {
+            const remainder =
+                options.index % maxItemsPerPage || maxItemsPerPage;
+
             const beatmap = availableBeatmaps.at(
-                options.index -
-                    (options.index % maxItemsPerPage) +
-                    pickedIndex -
-                    1
+                options.index - remainder + (pickedIndex - 1)
             )!;
 
             console.log(`${beatmap.fullTitle} has been picked`);
